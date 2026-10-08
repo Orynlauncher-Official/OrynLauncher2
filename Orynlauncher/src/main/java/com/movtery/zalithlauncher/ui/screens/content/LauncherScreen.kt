@@ -294,7 +294,7 @@ private fun V5Home(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(70.dp)
+                            .height(82.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
@@ -323,7 +323,7 @@ private fun V5Home(
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(185.dp)
+                            .height(310.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -336,7 +336,7 @@ private fun V5Home(
                             AccountAvatar(
                                 account = account,
                                 onClick = toAccountManageScreen,
-                                modifier = Modifier.size(76.dp)
+                                modifier = Modifier.size(124.dp)
                             )
                             Text(
                                 text = account?.username ?: "Minecraft account",
@@ -353,7 +353,7 @@ private fun V5Home(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 6.dp)
+                                    .padding(top = 12.dp)
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(softPanel)
                                     .clickable(onClick = toAccountManageScreen)
@@ -367,7 +367,7 @@ private fun V5Home(
                                     modifier = Modifier.size(22.dp)
                                 )
                                 Text(
-                                    "Manage Account",
+                                    "Microsoft Account",
                                     color = Color.White,
                                     modifier = Modifier
                                         .padding(start = 14.dp)
@@ -382,11 +382,28 @@ private fun V5Home(
                         }
                     }
 
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(top = 10.dp)
+                    ) {
+                        Text(
+                            text = account?.username ?: "Raze",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Minecraft account",
+                            color = Color.White.copy(alpha = .55f),
+                            fontSize = 14.sp
+                        )
+                    }
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp)
-                            .padding(top = 8.dp)
+                            .height(90.dp)
+                            .padding(top = 24.dp)
                             .clip(RoundedCornerShape(38.dp))
                             .background(Color.White.copy(alpha = .17f))
                             .border(
