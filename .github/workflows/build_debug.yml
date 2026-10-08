@@ -33,7 +33,7 @@ jobs:
           chmod +x gradlew
           ./gradlew Orynlauncher:assembleDebug -Darch=${{ matrix.arch }}
 
-      - name: Upload Debug APK for ${{ matrix.arch }}
+      - name: Rename APK\n        run: |\n          mv Orynlauncher/build/outputs/apk/debug/*.apk Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk\n\n      - name: Upload Debug APK
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
