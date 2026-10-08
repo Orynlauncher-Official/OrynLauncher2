@@ -232,41 +232,6 @@ fun LauncherSettingsScreen(
                         .padding(top = 12.dp)
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    var customColorOperation by remember { mutableStateOf<CustomColorOperation>(CustomColorOperation.None) }
-                    CustomColorOperation(
-                        customColorOperation = customColorOperation,
-                        updateOperation = { customColorOperation = it }
-                    )
-
-                    EnumSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
-                        unit = AllSettings.launcherColorTheme,
-                        title = stringResource(R.string.settings_launcher_color_theme_title),
-                        summary = stringResource(R.string.settings_launcher_color_theme_summary),
-                        entries = ColorThemeType.entries,
-                        getRadioEnable = { enum ->
-                            if (enum == ColorThemeType.DYNAMIC) Build.VERSION.SDK_INT >= Build.VERSION_CODES.S else true
-                        },
-                        getRadioText = { enum ->
-                            when (enum) {
-                                ColorThemeType.DYNAMIC -> stringResource(R.string.theme_color_dynamic)
-                                ColorThemeType.EMBERMIRE -> stringResource(R.string.theme_color_embermire)
-                                ColorThemeType.VELVET_ROSE -> stringResource(R.string.theme_color_velvet_rose)
-                                ColorThemeType.MISTWAVE -> stringResource(R.string.theme_color_mistwave)
-                                ColorThemeType.GLACIER -> stringResource(R.string.theme_color_glacier)
-                                ColorThemeType.VERDANTFIELD -> stringResource(R.string.theme_color_verdant_field)
-                                ColorThemeType.URBAN_ASH -> stringResource(R.string.theme_color_urban_ash)
-                                ColorThemeType.VERDANT_DAWN -> stringResource(R.string.theme_color_verdant_dawn)
-                                ColorThemeType.CUSTOM -> stringResource(R.string.generic_custom)
-                            }
-                        },
-                        maxItemsInEachRow = 5,
-                        onRadioClick = { enum ->
-                            if (enum == ColorThemeType.CUSTOM) customColorOperation = CustomColorOperation.Dialog
-                        }
-                    )
-
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
