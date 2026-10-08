@@ -294,7 +294,7 @@ private fun V5Home(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(70.dp)
+                            .height(56.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
@@ -312,20 +312,14 @@ private fun V5Home(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Text(
-                            text = "Your Minecraft, your way",
-                            modifier = Modifier.padding(start = 30.dp, top = 1.dp),
-                            color = Color.White.copy(alpha = .52f),
-                            fontSize = 16.sp
-                        )
                     }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(235.dp)
+                            .height(205.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -338,7 +332,7 @@ private fun V5Home(
                             AccountAvatar(
                                 account = account,
                                 onClick = toAccountManageScreen,
-                                modifier = Modifier.size(82.dp)
+                                modifier = Modifier.size(72.dp)
                             )
                             Text(
                                 text = account?.username ?: "Minecraft account",
@@ -390,7 +384,6 @@ private fun V5Home(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp)
-                            .padding(top = 10.dp)
                             .clip(RoundedCornerShape(38.dp))
                             .background(Color.White.copy(alpha = .17f))
                             .border(
