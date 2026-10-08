@@ -25,7 +25,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -212,343 +211,165 @@ private fun V5Home(
     onFpsClick: () -> Unit,
 ) {
     val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-    val backgroundViewModel = LocalBackgroundViewModel.current
+    val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+    val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
 
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0C0D0F))
+    Column(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp, vertical = 12.dp)
     ) {
-        // Everything is sized from the available canvas rather than fixed dp values.
-        // This keeps the V5 design visually consistent on different Android densities.
-        val outer = maxWidth * 0.0195f
-        val headerHeight = maxHeight * 0.135f
-        val sideWidth = maxWidth * 0.067f
-        val sideGap = maxWidth * 0.032f
-        val contentGap = maxWidth * 0.024f
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = outer, vertical = maxHeight * 0.018f)
+        Row(
+            modifier = Modifier.fillMaxWidth().height(72.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(headerHeight),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "OrynLauncher",
-                    modifier = Modifier.size(headerHeight * 0.62f),
-                    tint = Color.Unspecified
+            Icon(
+                painter = painterResource(R.drawable.ic_launcher_foreground),
+                contentDescription = "OrynLauncher",
+                modifier = Modifier.size(58.dp),
+                tint = Color.Unspecified
+            )
+            Column(modifier = Modifier.padding(start = 12.dp)) {
+                Text(
+                    text = "OrynLauncher",
+                    color = Color.White,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
                 )
+                Text(
+                    text = "Minecraft  •  v5",
+                    color = Color.White.copy(alpha = .55f),
+                    fontSize = 13.sp
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onFpsClick)
+            V5IconButton(R.drawable.ic_folder_filled, "Files", toFileManagerScreen)
+            V5IconButton(R.drawable.ic_group_filled, "Multiplayer", toMultiplayerScreen)
+            V5IconButton(R.drawable.ic_download_2_filled, "Downloads", toDownloadScreen)
+            V5IconButton(R.drawable.ic_settings_filled, "Settings", toSettingsScreen)
+        }
 
-                Column(modifier = Modifier.padding(start = maxWidth * 0.009f)) {
-                    Text(
-                        text = "OrynLauncher",
-                        color = Color.White,
-                        fontSize = (maxWidth * 0.016f).coerceIn(20.dp, 30.dp).value.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Minecraft  •  v5",
-                        color = Color.White.copy(alpha = .52f),
-                        fontSize = (maxWidth * 0.0085f).coerceIn(11.dp, 16.dp).value.sp
-                    )
-                }
-
-                Spacer(Modifier.weight(1f))
-
-                V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onFpsClick, headerHeight * 0.46f)
-                V5IconButton(R.drawable.ic_folder_filled, "Files", toFileManagerScreen, headerHeight * 0.46f)
-                V5IconButton(R.drawable.ic_group_filled, "Multiplayer", toMultiplayerScreen, headerHeight * 0.46f)
-                V5IconButton(R.drawable.ic_download_2_filled, "Downloads", toDownloadScreen, headerHeight * 0.46f)
-                V5IconButton(R.drawable.ic_settings_filled, "Settings", toSettingsScreen, headerHeight * 0.46f)
+        Row(
+            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(28.dp)
+        ) {
+            Column(
+                modifier = Modifier.width(82.dp).fillMaxHeight().clip(RoundedCornerShape(28.dp))
+                    .background(Color(0xFF101112))
+                    .border(1.dp, Color.White.copy(alpha=.08f), RoundedCornerShape(28.dp))
+                    .padding(vertical = 14.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                V5NavItem(R.drawable.ic_home_filled, true) {}
+                V5NavItem(R.drawable.ic_assignment_filled, false, toVersionManageScreen)
+                V5NavItem(R.drawable.ic_group_filled, false, toMultiplayerScreen)
+                V5NavItem(R.drawable.ic_download_2_filled, false, toDownloadScreen)
+                V5NavItem(R.drawable.ic_settings_filled, false, toSettingsScreen)
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(top = maxHeight * 0.018f),
-                horizontalArrangement = Arrangement.spacedBy(sideGap)
+            Column(
+                modifier = Modifier.weight(6f).fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .width(sideWidth)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(sideWidth * 0.27f))
-                        .background(Color(0xFF101214))
-                        .border(1.dp, Color.White.copy(alpha = .07f), RoundedCornerShape(sideWidth * 0.27f))
-                        .padding(vertical = sideWidth * 0.11f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(sideWidth * 0.075f)
-                ) {
-                    V5NavItem(R.drawable.ic_home_filled, true, {}, Modifier.size(sideWidth * 0.73f))
-                    V5NavItem(R.drawable.ic_assignment_filled, false, toVersionManageScreen, Modifier.size(sideWidth * 0.73f))
-                    V5NavItem(R.drawable.ic_group_filled, false, toMultiplayerScreen, Modifier.size(sideWidth * 0.73f))
-                    V5NavItem(R.drawable.ic_download_2_filled, false, toDownloadScreen, Modifier.size(sideWidth * 0.73f))
-                    V5NavItem(R.drawable.ic_settings_filled, false, toSettingsScreen, Modifier.size(sideWidth * 0.73f))
+                Row(verticalAlignment = Alignment.Top) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(4.dp).height(56.dp).clip(RoundedCornerShape(4.dp)).background(Color.White))
+                            Text(
+                                text = "PLAY",
+                                modifier = Modifier.padding(start = 26.dp),
+                                color = Color.White,
+                                fontSize = 42.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Text(
+                            text = "Your Minecraft, your way",
+                            modifier = Modifier.padding(start = 30.dp, top = 1.dp),
+                            color = Color.White.copy(alpha=.52f),
+                            fontSize = 16.sp
+                        )
+                    }
                 }
 
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.spacedBy(contentGap)
+                BackgroundCard(
+                    modifier = Modifier.width(365.dp).height(310.dp).align(Alignment.CenterHorizontally),
+                    shape = RoundedCornerShape(30.dp)
                 ) {
-                    BoxWithConstraints(
-                        modifier = Modifier
-                            .weight(1.42f)
-                            .fillMaxHeight()
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(maxHeight * 0.045f)
+                        AccountAvatar(
+                            account = account,
+                            onClick = toAccountManageScreen,
+                            modifier = Modifier.size(185.dp)
+                        )
+                        Text(
+                            text = account?.username ?: "Minecraft account",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(top = 5.dp)
+                        )
+                        Text(
+                            text = "● Online",
+                            color = Color.White.copy(alpha=.58f),
+                            fontSize = 13.sp
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                                .clip(RoundedCornerShape(28.dp))
+                                .background(Color.White.copy(alpha=.10f))
+                                .clickable(onClick = toAccountManageScreen)
+                                .padding(horizontal = 18.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        Modifier
-                                            .width(maxWidth * 0.005f)
-                                            .height(maxHeight * 0.105f)
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(Color.White)
-                                    )
-                                    Text(
-                                        text = "PLAY",
-                                        modifier = Modifier.padding(start = maxWidth * 0.026f),
-                                        color = Color.White,
-                                        fontSize = (maxWidth * 0.032f).coerceIn(30.dp, 48.dp).value.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Text(
-                                    text = "Your Minecraft, your way",
-                                    modifier = Modifier.padding(start = maxWidth * 0.032f, top = 1.dp),
-                                    color = Color.White.copy(alpha = .52f),
-                                    fontSize = (maxWidth * 0.011f).coerceIn(13.dp, 18.dp).value.sp
-                                )
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                contentAlignment = Alignment.TopCenter
-                            ) {
-                                BoxWithConstraints {
-                                    val cardWidth = maxWidth * 0.485f
-                                    val cardHeight = maxHeight * 0.68f
-
-                                    Surface(
-                                        modifier = Modifier.size(cardWidth, cardHeight),
-                                        shape = RoundedCornerShape(cardWidth * 0.075f),
-                                        color = Color(0xFF17191C),
-                                        tonalElevation = 0.dp
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(cardWidth * 0.075f),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            AccountAvatar(
-                                                account = account,
-                                                onClick = toAccountManageScreen,
-                                                modifier = Modifier.size(cardWidth * 0.34f)
-                                            )
-                                            Text(
-                                                text = account?.username ?: "Minecraft account",
-                                                color = Color.White,
-                                                fontSize = (cardWidth * 0.055f).coerceIn(14.dp, 20.dp).value.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                modifier = Modifier.padding(top = cardWidth * 0.012f)
-                                            )
-                                            Text(
-                                                text = if (account != null) "● Online" else "● Offline",
-                                                color = Color.White.copy(alpha = .58f),
-                                                fontSize = (cardWidth * 0.038f).coerceIn(11.dp, 15.dp).value.sp
-                                            )
-
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(top = cardWidth * 0.035f)
-                                                    .clip(RoundedCornerShape(cardWidth * 0.08f))
-                                                    .background(Color.White.copy(alpha = .09f))
-                                                    .clickable(onClick = toAccountManageScreen)
-                                                    .padding(
-                                                        horizontal = cardWidth * 0.055f,
-                                                        vertical = cardWidth * 0.035f
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(
-                                                    painterResource(R.drawable.ic_login),
-                                                    null,
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(cardWidth * 0.07f)
-                                                )
-                                                Text(
-                                                    "Microsoft Account",
-                                                    color = Color.White,
-                                                    fontSize = (cardWidth * 0.041f).coerceIn(11.dp, 16.dp).value.sp,
-                                                    modifier = Modifier.padding(start = cardWidth * 0.04f).weight(1f)
-                                                )
-                                                Text(
-                                                    "›",
-                                                    color = Color.White.copy(alpha = .7f),
-                                                    fontSize = (cardWidth * 0.085f).coerceIn(20.dp, 30.dp).value.sp
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-
-                            ScalingActionButton(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(maxHeight * 0.18f),
-                                elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
-                                onClick = { onLaunchGame(null) }
-                            ) {
-                                Text(
-                                    "▶   L A U N C H",
-                                    color = Color.White,
-                                    fontSize = (maxWidth * 0.014f).coerceIn(16.dp, 23.dp).value.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.weight(1f))
-                                Text(
-                                    "›",
-                                    color = Color.White.copy(alpha = .7f),
-                                    fontSize = (maxWidth * 0.027f).coerceIn(24.dp, 38.dp).value.sp
-                                )
-                            }
+                            Icon(painterResource(R.drawable.ic_login), null, tint = Color.White, modifier = Modifier.size(22.dp))
+                            Text("Microsoft Account", color=Color.White, modifier=Modifier.padding(start=14.dp).weight(1f))
+                            Text("›", color=Color.White.copy(alpha=.65f), fontSize=28.sp)
                         }
                     }
+                }
 
-                    BoxWithConstraints(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            shape = RoundedCornerShape(maxWidth * 0.055f),
-                            color = Color(0xFF15171A),
-                            tonalElevation = 0.dp
-                        ) {
-                            Box(Modifier.fillMaxSize()) {
-                                // Reuse the launcher's configured background inside the cosmetics panel.
-                                if (backgroundViewModel?.isValid == true && backgroundViewModel.isImage) {
-                                    AsyncImage(
-                                        model = backgroundViewModel.backgroundFile,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(RoundedCornerShape(maxWidth * 0.055f)),
-                                        contentScale = ContentScale.Crop,
-                                        alpha = 0.28f
-                                    )
-                                }
+                ScalingActionButton(
+                    modifier = Modifier.fillMaxWidth().height(76.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
+                    onClick = { onLaunchGame(null) }
+                ) {
+                    Text("▶   L A U N C H", color=Color.White, fontSize=20.sp, fontWeight=FontWeight.Bold)
+                    Spacer(Modifier.weight(1f))
+                    Text("›", color=Color.White.copy(alpha=.7f), fontSize=34.sp)
+                }
+            }
 
-                                Box(
-                                    Modifier
-                                        .fillMaxSize()
-                                        .background(Color.Black.copy(alpha = .28f))
-                                )
-
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(maxWidth * 0.05f)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(
-                                            Modifier
-                                                .width(maxWidth * 0.008f)
-                                                .height(maxHeight * 0.105f)
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(Color.White)
-                                        )
-                                        Column(
-                                            Modifier
-                                                .padding(start = maxWidth * 0.035f)
-                                                .weight(1f)
-                                        ) {
-                                            Text(
-                                                "COSMETICS",
-                                                color = Color.White,
-                                                fontSize = (maxWidth * 0.035f).coerceIn(24.dp, 34.dp).value.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                "Manage your Minecraft appearance",
-                                                color = Color.White.copy(alpha = .52f),
-                                                fontSize = (maxWidth * 0.015f).coerceIn(12.dp, 16.dp).value.sp
-                                            )
-                                        }
-                                        Text(
-                                            "V5",
-                                            color = Color.White.copy(alpha = .72f),
-                                            fontSize = (maxWidth * 0.015f).coerceIn(11.dp, 15.dp).value.sp,
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(maxWidth * 0.025f))
-                                                .background(Color.White.copy(alpha = .08f))
-                                                .padding(
-                                                    horizontal = maxWidth * 0.025f,
-                                                    vertical = maxWidth * 0.015f
-                                                )
-                                        )
-                                    }
-
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = maxHeight * 0.055f)
-                                            .clip(RoundedCornerShape(maxWidth * 0.045f))
-                                            .background(Color.White.copy(alpha = .08f))
-                                            .clickable(onClick = toAccountManageScreen)
-                                            .padding(maxWidth * 0.035f),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painterResource(R.drawable.ic_group_filled),
-                                            null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(maxWidth * 0.085f)
-                                        )
-                                        Column(
-                                            Modifier
-                                                .padding(start = maxWidth * 0.035f)
-                                                .weight(1f)
-                                        ) {
-                                            Text(
-                                                "SKIN & CAPE",
-                                                color = Color.White,
-                                                fontSize = (maxWidth * 0.025f).coerceIn(15.dp, 22.dp).value.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                "Manage your Minecraft skin and cape in one place",
-                                                color = Color.White.copy(alpha = .52f),
-                                                fontSize = (maxWidth * 0.018f).coerceIn(11.dp, 15.dp).value.sp
-                                            )
-                                        }
-                                        Text(
-                                            "›",
-                                            color = Color.White.copy(alpha = .7f),
-                                            fontSize = (maxWidth * 0.055f).coerceIn(24.dp, 38.dp).value.sp
-                                        )
-                                    }
-                                }
-                            }
+            BackgroundCard(
+                modifier = Modifier.weight(4f).fillMaxHeight(),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Column(modifier=Modifier.fillMaxSize().padding(26.dp)) {
+                    Row(verticalAlignment=Alignment.CenterVertically) {
+                        Box(Modifier.width(4.dp).height(52.dp).clip(RoundedCornerShape(4.dp)).background(Color.White))
+                        Column(Modifier.padding(start=22.dp).weight(1f)) {
+                            Text("COSMETICS", color=Color.White, fontSize=30.sp, fontWeight=FontWeight.Bold)
+                            Text("Manage your Minecraft appearance", color=Color.White.copy(alpha=.5f), fontSize=14.sp)
                         }
+                        Text("V5", color=Color.White.copy(alpha=.7f), fontSize=13.sp,
+                            modifier=Modifier.clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha=.08f)).padding(horizontal=14.dp, vertical=8.dp))
+                    }
+
+                    Row(
+                        modifier=Modifier.fillMaxWidth().padding(top=26.dp).clip(RoundedCornerShape(24.dp))
+                            .background(Color.White.copy(alpha=.08f))
+                            .clickable(onClick=toAccountManageScreen)
+                            .padding(16.dp),
+                        verticalAlignment=Alignment.CenterVertically
+                    ) {
+                        Icon(painterResource(R.drawable.ic_group_filled), null, tint=Color.White, modifier=Modifier.size(54.dp))
+                        Column(Modifier.padding(start=16.dp).weight(1f)) {
+                            Text("SKIN & CAPE", color=Color.White, fontSize=17.sp, fontWeight=FontWeight.Bold)
+                            Text("Manage your Minecraft skin and cape in one place", color=Color.White.copy(alpha=.52f), fontSize=13.sp)
+                        }
+                        Text("›", color=Color.White.copy(alpha=.65f), fontSize=34.sp)
                     }
                 }
             }
@@ -557,50 +378,33 @@ private fun V5Home(
 }
 
 @Composable
-private fun V5IconButton(
-    icon: Int,
-    label: String,
-    onClick: () -> Unit,
-    size: androidx.compose.ui.unit.Dp
-) {
+private fun V5IconButton(icon: Int, label: String, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
-        modifier = Modifier
-            .size(size)
-            .clip(RoundedCornerShape(size * 0.25f))
-            .background(Color.White.copy(alpha = .045f))
+        modifier = Modifier.size(52.dp).padding(3.dp)
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = label,
             tint = Color.White,
-            modifier = Modifier.size(size * 0.58f)
+            modifier = Modifier.size(28.dp)
         )
     }
 }
 
 @Composable
-private fun V5NavItem(
-    icon: Int,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun V5NavItem(icon: Int, selected: Boolean, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
-        modifier = modifier
-            .clip(RoundedCornerShape(17.dp))
-            .background(if (selected) Color.White.copy(alpha = .88f) else Color.Transparent)
+        modifier = Modifier.size(58.dp).clip(RoundedCornerShape(17.dp))
+            .background(if (selected) Color.White.copy(alpha=.86f) else Color.Transparent)
+            .padding(13.dp)
     ) {
-        Icon(
-            painterResource(icon),
-            null,
-            tint = if (selected) Color.Black else Color.White.copy(alpha = .9f),
-            modifier = Modifier.fillMaxSize(0.48f)
-        )
+        Icon(painterResource(icon), null, tint=if(selected) Color.Black else Color.White.copy(alpha=.9f))
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ContentMenu(
     isVisible: Boolean,
