@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.basicMarquee
@@ -71,7 +72,10 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -214,8 +218,8 @@ private fun V5Home(
 
     val pageBackground = Color(0xFF07090B)
     val panel = Color(0xFF0D0F11)
-    val panelBorder = Color.White.copy(alpha = 0.09f)
-    val softPanel = Color.White.copy(alpha = 0.055f)
+    val panelBorder = Color.White.copy(alpha = 0.10f)
+    val softPanel = Color.White.copy(alpha = 0.065f)
 
     Box(
         modifier = Modifier
@@ -225,7 +229,9 @@ private fun V5Home(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().height(72.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -256,8 +262,11 @@ private fun V5Home(
             }
 
             Row(
-                modifier = Modifier.fillMaxSize().padding(top = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(28.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -277,10 +286,16 @@ private fun V5Home(
                 }
 
                 Column(
-                    modifier = Modifier.weight(6f).fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                    modifier = Modifier
+                        .weight(6f)
+                        .fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(82.dp)
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 Modifier
@@ -308,8 +323,7 @@ private fun V5Home(
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(310.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .height(292.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -322,14 +336,14 @@ private fun V5Home(
                             AccountAvatar(
                                 account = account,
                                 onClick = toAccountManageScreen,
-                                modifier = Modifier.size(120.dp)
+                                modifier = Modifier.size(112.dp)
                             )
                             Text(
                                 text = account?.username ?: "Minecraft account",
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(top = 5.dp)
+                                modifier = Modifier.padding(top = 4.dp)
                             )
                             Text(
                                 text = if (account != null) "● Online" else "● Offline",
@@ -339,11 +353,11 @@ private fun V5Home(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 12.dp)
+                                    .padding(top = 10.dp)
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(softPanel)
                                     .clickable(onClick = toAccountManageScreen)
-                                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                                    .padding(horizontal = 18.dp, vertical = 11.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -355,25 +369,59 @@ private fun V5Home(
                                 Text(
                                     "Microsoft Account",
                                     color = Color.White,
-                                    modifier = Modifier.padding(start = 14.dp).weight(1f)
+                                    modifier = Modifier
+                                        .padding(start = 14.dp)
+                                        .weight(1f)
                                 )
-                                Text("›", color = Color.White.copy(alpha = .65f), fontSize = 28.sp)
+                                Text(
+                                    "›",
+                                    color = Color.White.copy(alpha = .65f),
+                                    fontSize = 28.sp
+                                )
                             }
                         }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = account?.username ?: "Raze",
+                            color = Color.White,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Minecraft account",
+                            color = Color.White.copy(alpha = .52f),
+                            fontSize = 13.sp
+                        )
                     }
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(76.dp)
+                            .padding(top = 8.dp)
                             .clip(RoundedCornerShape(38.dp))
-                            .background(Color.White.copy(alpha = .16f))
-                            .border(1.dp, Color.White.copy(alpha = .18f), RoundedCornerShape(38.dp))
+                            .background(Color.White.copy(alpha = .17f))
+                            .border(
+                                1.dp,
+                                Color.White.copy(alpha = .20f),
+                                RoundedCornerShape(38.dp)
+                            )
                             .clickable { onLaunchGame(null) }
                             .padding(horizontal = 28.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("▶", color = Color.White, fontSize = 25.sp)
+                        Text(
+                            "▶",
+                            color = Color.White,
+                            fontSize = 25.sp
+                        )
                         Text(
                             "L A U N C H",
                             color = Color.White,
@@ -382,7 +430,11 @@ private fun V5Home(
                             modifier = Modifier.padding(start = 18.dp)
                         )
                         Spacer(Modifier.weight(1f))
-                        Text("›", color = Color.White.copy(alpha = .7f), fontSize = 34.sp)
+                        Text(
+                            "›",
+                            color = Color.White.copy(alpha = .75f),
+                            fontSize = 34.sp
+                        )
                     }
                 }
 
@@ -403,7 +455,11 @@ private fun V5Home(
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(Color.White)
                         )
-                        Column(Modifier.padding(start = 22.dp).weight(1f)) {
+                        Column(
+                            Modifier
+                                .padding(start = 22.dp)
+                                .weight(1f)
+                        ) {
                             Text(
                                 "COSMETICS",
                                 color = Color.White,
@@ -430,7 +486,7 @@ private fun V5Home(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 26.dp)
+                            .padding(top = 24.dp)
                             .clip(RoundedCornerShape(24.dp))
                             .background(softPanel)
                             .clickable(onClick = toAccountManageScreen)
@@ -443,7 +499,11 @@ private fun V5Home(
                             tint = Color.White,
                             modifier = Modifier.size(54.dp)
                         )
-                        Column(Modifier.padding(start = 16.dp).weight(1f)) {
+                        Column(
+                            Modifier
+                                .padding(start = 16.dp)
+                                .weight(1f)
+                        ) {
                             Text(
                                 "SKIN & CAPE",
                                 color = Color.White,
@@ -451,15 +511,49 @@ private fun V5Home(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "Manage your Minecraft skin and cape in one place",
+                                "Manage your Minecraft\nskin and cape in one place",
                                 color = Color.White.copy(alpha = .52f),
                                 fontSize = 13.sp
                             )
                         }
-                        Text("›", color = Color.White.copy(alpha = .65f), fontSize = 34.sp)
+                        Text(
+                            "›",
+                            color = Color.White.copy(alpha = .65f),
+                            fontSize = 34.sp
+                        )
                     }
 
                     Spacer(Modifier.weight(1f))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.img_minecraft),
+                            contentDescription = "Minecraft",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            colorFilter = ColorFilter.colorMatrix(
+                                ColorMatrix().apply { setToSaturation(0f) }
+                            ),
+                            alpha = 0.62f
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(
+                                            pageBackground.copy(alpha = .20f),
+                                            pageBackground.copy(alpha = .72f)
+                                        )
+                                    )
+                                )
+                        )
+                    }
                 }
             }
         }
