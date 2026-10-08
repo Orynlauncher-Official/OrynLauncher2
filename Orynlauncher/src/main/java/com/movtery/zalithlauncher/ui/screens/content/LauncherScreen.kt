@@ -211,69 +211,84 @@ private fun V5Home(
     onFpsClick: () -> Unit,
 ) {
     val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-    val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
-    val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp, vertical = 12.dp)
+    val pageBackground = Color(0xFF07090B)
+    val panel = Color(0xFF0D0F11)
+    val panelBorder = Color.White.copy(alpha = 0.09f)
+    val softPanel = Color.White.copy(alpha = 0.055f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(pageBackground)
+            .padding(horizontal = 22.dp, vertical = 10.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(72.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "OrynLauncher",
-                modifier = Modifier.size(58.dp),
-                tint = Color.Unspecified
-            )
-            Column(modifier = Modifier.padding(start = 12.dp)) {
-                Text(
-                    text = "OrynLauncher",
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Minecraft  •  v5",
-                    color = Color.White.copy(alpha = .55f),
-                    fontSize = 13.sp
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onFpsClick)
-            V5IconButton(R.drawable.ic_folder_filled, "Files", toFileManagerScreen)
-            V5IconButton(R.drawable.ic_group_filled, "Multiplayer", toMultiplayerScreen)
-            V5IconButton(R.drawable.ic_download_2_filled, "Downloads", toDownloadScreen)
-            V5IconButton(R.drawable.ic_settings_filled, "Settings", toSettingsScreen)
-        }
-
-        Row(
-            modifier = Modifier.fillMaxSize().padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(28.dp)
-        ) {
-            Column(
-                modifier = Modifier.width(82.dp).fillMaxHeight().clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFF101112))
-                    .border(1.dp, Color.White.copy(alpha=.08f), RoundedCornerShape(28.dp))
-                    .padding(vertical = 14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(72.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                V5NavItem(R.drawable.ic_home_filled, true) {}
-                V5NavItem(R.drawable.ic_assignment_filled, false, toVersionManageScreen)
-                V5NavItem(R.drawable.ic_group_filled, false, toMultiplayerScreen)
-                V5NavItem(R.drawable.ic_download_2_filled, false, toDownloadScreen)
-                V5NavItem(R.drawable.ic_settings_filled, false, toSettingsScreen)
+                Icon(
+                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = "OrynLauncher",
+                    modifier = Modifier.size(58.dp),
+                    tint = Color.Unspecified
+                )
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    Text(
+                        text = "OrynLauncher",
+                        color = Color.White,
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Minecraft  •  v5",
+                        color = Color.White.copy(alpha = .55f),
+                        fontSize = 13.sp
+                    )
+                }
+                Spacer(Modifier.weight(1f))
+                V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onFpsClick)
+                V5IconButton(R.drawable.ic_folder_filled, "Files", toFileManagerScreen)
+                V5IconButton(R.drawable.ic_group_filled, "Multiplayer", toMultiplayerScreen)
+                V5IconButton(R.drawable.ic_download_2_filled, "Downloads", toDownloadScreen)
+                V5IconButton(R.drawable.ic_settings_filled, "Settings", toSettingsScreen)
             }
 
-            Column(
-                modifier = Modifier.weight(6f).fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+            Row(
+                modifier = Modifier.fillMaxSize().padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(28.dp)
             ) {
-                Row(verticalAlignment = Alignment.Top) {
+                Column(
+                    modifier = Modifier
+                        .width(82.dp)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(panel)
+                        .border(1.dp, panelBorder, RoundedCornerShape(28.dp))
+                        .padding(vertical = 14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    V5NavItem(R.drawable.ic_home_filled, true) {}
+                    V5NavItem(R.drawable.ic_assignment_filled, false, toVersionManageScreen)
+                    V5NavItem(R.drawable.ic_group_filled, false, toMultiplayerScreen)
+                    V5NavItem(R.drawable.ic_download_2_filled, false, toDownloadScreen)
+                    V5NavItem(R.drawable.ic_settings_filled, false, toSettingsScreen)
+                }
+
+                Column(
+                    modifier = Modifier.weight(6f).fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.width(4.dp).height(56.dp).clip(RoundedCornerShape(4.dp)).background(Color.White))
+                            Box(
+                                Modifier
+                                    .width(4.dp)
+                                    .height(56.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color.White)
+                            )
                             Text(
                                 text = "PLAY",
                                 modifier = Modifier.padding(start = 26.dp),
@@ -285,92 +300,166 @@ private fun V5Home(
                         Text(
                             text = "Your Minecraft, your way",
                             modifier = Modifier.padding(start = 30.dp, top = 1.dp),
-                            color = Color.White.copy(alpha=.52f),
+                            color = Color.White.copy(alpha = .52f),
                             fontSize = 16.sp
                         )
                     }
-                }
 
-                BackgroundCard(
-                    modifier = Modifier.width(365.dp).height(310.dp).align(Alignment.CenterHorizontally),
-                    shape = RoundedCornerShape(30.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(18.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Box(
+                        modifier = Modifier
+                            .width(365.dp)
+                            .height(310.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .clip(RoundedCornerShape(30.dp))
+                            .background(panel)
+                            .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
+                            .padding(18.dp)
                     ) {
-                        AccountAvatar(
-                            account = account,
-                            onClick = toAccountManageScreen,
-                            modifier = Modifier.size(185.dp)
-                        )
-                        Text(
-                            text = account?.username ?: "Minecraft account",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(top = 5.dp)
-                        )
-                        Text(
-                            text = "● Online",
-                            color = Color.White.copy(alpha=.58f),
-                            fontSize = 13.sp
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-                                .clip(RoundedCornerShape(28.dp))
-                                .background(Color.White.copy(alpha=.10f))
-                                .clickable(onClick = toAccountManageScreen)
-                                .padding(horizontal = 18.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(painterResource(R.drawable.ic_login), null, tint = Color.White, modifier = Modifier.size(22.dp))
-                            Text("Microsoft Account", color=Color.White, modifier=Modifier.padding(start=14.dp).weight(1f))
-                            Text("›", color=Color.White.copy(alpha=.65f), fontSize=28.sp)
+                            AccountAvatar(
+                                account = account,
+                                onClick = toAccountManageScreen,
+                                modifier = Modifier.size(120.dp)
+                            )
+                            Text(
+                                text = account?.username ?: "Minecraft account",
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(top = 5.dp)
+                            )
+                            Text(
+                                text = if (account != null) "● Online" else "● Offline",
+                                color = Color.White.copy(alpha = .58f),
+                                fontSize = 13.sp
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp)
+                                    .clip(RoundedCornerShape(28.dp))
+                                    .background(softPanel)
+                                    .clickable(onClick = toAccountManageScreen)
+                                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.ic_login),
+                                    null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Text(
+                                    "Microsoft Account",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(start = 14.dp).weight(1f)
+                                )
+                                Text("›", color = Color.White.copy(alpha = .65f), fontSize = 28.sp)
+                            }
                         }
-                    }
-                }
-
-                ScalingActionButton(
-                    modifier = Modifier.fillMaxWidth().height(76.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
-                    onClick = { onLaunchGame(null) }
-                ) {
-                    Text("▶   L A U N C H", color=Color.White, fontSize=20.sp, fontWeight=FontWeight.Bold)
-                    Spacer(Modifier.weight(1f))
-                    Text("›", color=Color.White.copy(alpha=.7f), fontSize=34.sp)
-                }
-            }
-
-            BackgroundCard(
-                modifier = Modifier.weight(4f).fillMaxHeight(),
-                shape = RoundedCornerShape(28.dp)
-            ) {
-                Column(modifier=Modifier.fillMaxSize().padding(26.dp)) {
-                    Row(verticalAlignment=Alignment.CenterVertically) {
-                        Box(Modifier.width(4.dp).height(52.dp).clip(RoundedCornerShape(4.dp)).background(Color.White))
-                        Column(Modifier.padding(start=22.dp).weight(1f)) {
-                            Text("COSMETICS", color=Color.White, fontSize=30.sp, fontWeight=FontWeight.Bold)
-                            Text("Manage your Minecraft appearance", color=Color.White.copy(alpha=.5f), fontSize=14.sp)
-                        }
-                        Text("V5", color=Color.White.copy(alpha=.7f), fontSize=13.sp,
-                            modifier=Modifier.clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha=.08f)).padding(horizontal=14.dp, vertical=8.dp))
                     }
 
                     Row(
-                        modifier=Modifier.fillMaxWidth().padding(top=26.dp).clip(RoundedCornerShape(24.dp))
-                            .background(Color.White.copy(alpha=.08f))
-                            .clickable(onClick=toAccountManageScreen)
-                            .padding(16.dp),
-                        verticalAlignment=Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(76.dp)
+                            .clip(RoundedCornerShape(38.dp))
+                            .background(Color.White.copy(alpha = .16f))
+                            .border(1.dp, Color.White.copy(alpha = .18f), RoundedCornerShape(38.dp))
+                            .clickable { onLaunchGame(null) }
+                            .padding(horizontal = 28.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(painterResource(R.drawable.ic_group_filled), null, tint=Color.White, modifier=Modifier.size(54.dp))
-                        Column(Modifier.padding(start=16.dp).weight(1f)) {
-                            Text("SKIN & CAPE", color=Color.White, fontSize=17.sp, fontWeight=FontWeight.Bold)
-                            Text("Manage your Minecraft skin and cape in one place", color=Color.White.copy(alpha=.52f), fontSize=13.sp)
-                        }
-                        Text("›", color=Color.White.copy(alpha=.65f), fontSize=34.sp)
+                        Text("▶", color = Color.White, fontSize = 25.sp)
+                        Text(
+                            "L A U N C H",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 18.dp)
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Text("›", color = Color.White.copy(alpha = .7f), fontSize = 34.sp)
                     }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(4f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(panel)
+                        .border(1.dp, panelBorder, RoundedCornerShape(28.dp))
+                        .padding(26.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier
+                                .width(4.dp)
+                                .height(52.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.White)
+                        )
+                        Column(Modifier.padding(start = 22.dp).weight(1f)) {
+                            Text(
+                                "COSMETICS",
+                                color = Color.White,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Manage your Minecraft appearance",
+                                color = Color.White.copy(alpha = .5f),
+                                fontSize = 14.sp
+                            )
+                        }
+                        Text(
+                            "V5",
+                            color = Color.White.copy(alpha = .7f),
+                            fontSize = 13.sp,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(softPanel)
+                                .padding(horizontal = 14.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 26.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(softPanel)
+                            .clickable(onClick = toAccountManageScreen)
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.ic_group_filled),
+                            null,
+                            tint = Color.White,
+                            modifier = Modifier.size(54.dp)
+                        )
+                        Column(Modifier.padding(start = 16.dp).weight(1f)) {
+                            Text(
+                                "SKIN & CAPE",
+                                color = Color.White,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Manage your Minecraft skin and cape in one place",
+                                color = Color.White.copy(alpha = .52f),
+                                fontSize = 13.sp
+                            )
+                        }
+                        Text("›", color = Color.White.copy(alpha = .65f), fontSize = 34.sp)
+                    }
+
+                    Spacer(Modifier.weight(1f))
                 }
             }
         }
