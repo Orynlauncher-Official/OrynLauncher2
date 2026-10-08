@@ -294,7 +294,7 @@ private fun V5Home(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(76.dp)
+                            .height(70.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
@@ -323,7 +323,7 @@ private fun V5Home(
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(280.dp)
+                            .height(215.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -336,7 +336,7 @@ private fun V5Home(
                             AccountAvatar(
                                 account = account,
                                 onClick = toAccountManageScreen,
-                                modifier = Modifier.size(104.dp)
+                                modifier = Modifier.size(82.dp)
                             )
                             Text(
                                 text = account?.username ?: "Minecraft account",
@@ -353,11 +353,11 @@ private fun V5Home(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 12.dp)
+                                    .padding(top = 8.dp)
                                     .clip(RoundedCornerShape(28.dp))
                                     .background(softPanel)
                                     .clickable(onClick = toAccountManageScreen)
-                                    .padding(horizontal = 18.dp, vertical = 11.dp),
+                                    .padding(horizontal = 18.dp, vertical = 9.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
@@ -367,7 +367,7 @@ private fun V5Home(
                                     modifier = Modifier.size(22.dp)
                                 )
                                 Text(
-                                    "Microsoft Account",
+                                    "Manage Account",
                                     color = Color.White,
                                     modifier = Modifier
                                         .padding(start = 14.dp)
@@ -404,8 +404,8 @@ private fun V5Home(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(78.dp)
-                            .padding(top = 14.dp)
+                            .height(64.dp)
+                            .padding(top = 10.dp)
                             .clip(RoundedCornerShape(38.dp))
                             .background(Color.White.copy(alpha = .17f))
                             .border(
