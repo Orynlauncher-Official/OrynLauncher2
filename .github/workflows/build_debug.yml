@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: ["all", "arm", "arm64", "x86", "x86_64"]
+        arch: ["all"]
       fail-fast: false
 
     steps:
@@ -31,12 +31,12 @@ jobs:
       - name: Build Debug APK for ${{ matrix.arch }}
         run: |
           chmod +x gradlew
-          ./gradlew ZalithLauncher:assembleDebug -Darch=${{ matrix.arch }}
+          ./gradlew Orynlauncher:assembleDebug -Darch=${{ matrix.arch }}
 
       - name: Upload Debug APK for ${{ matrix.arch }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: debug apk (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/apk/debug/*.apk
+          name: OrynLauncherV5-Debug.apk
+          path: Orynlauncher/build/outputs/apk/debug/*.apk
           archive: false
