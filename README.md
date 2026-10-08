@@ -18,7 +18,7 @@
 
 **OrynLauncher** is an Android launcher for **Minecraft: Java Edition**.
 
-It is built from the open-source work of **Zalith Launcher 2** and its upstream projects, with OrynLauncher-specific development, branding, features, and user experience built on top.
+OrynLauncher is an independent community launcher project built with open-source components. Required upstream licenses and attribution are preserved in the repository.
 
 OrynLauncher aims to provide:
 
@@ -63,25 +63,29 @@ OrynLauncher is designed for:
 - **Minecraft: Java Edition**
 - Android devices capable of running the supported Java/Minecraft versions
 
-## 👥 Contributors
+## 👥 OrynLauncher Contributors
 
-OrynLauncher is developed and maintained by the **OrynLauncher team and community contributors**.
+**OrynLauncher Team**
 
-Contributions are welcome — bug fixes, UI improvements, launcher features, testing, documentation, and performance work are all appreciated.
+OrynLauncher is maintained by the OrynLauncher team and its community.
 
-### Contributing
+### Contributors
 
-1. Keep changes focused and maintainable.
-2. Follow the existing OrynLauncher project structure.
-3. Test changes before submitting them.
-4. Preserve required third-party licenses and attribution.
-5. Do not introduce unnecessary rewrites of working launcher systems.
+We welcome contributors who help improve OrynLauncher through:
+- Android development
+- Minecraft launcher development
+- UI/UX design
+- Performance optimization
+- Bug fixing and testing
+- Documentation
 
-OrynLauncher also builds on open-source upstream projects and libraries. Their required licenses, copyright notices, and attribution remain respected in the source tree.
+All contributors are expected to respect the project's code, licensing, and attribution requirements.
 
-**Upstream:** Zalith Launcher 2 and related open-source components.
+### Upstream Acknowledgement
 
-OrynLauncher is an independent community project and is **not affiliated with, endorsed by, or an official project of Zalith Launcher or PojavLauncher**.
+OrynLauncher uses and builds upon open-source upstream projects and libraries. Required copyright notices, licenses, and attribution are retained.
+
+OrynLauncher has its own branding, development direction, UI/UX, and feature roadmap.
 
 ## 📦 Building OrynLauncher
 
