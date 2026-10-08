@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: ["all", "arm", "arm64", "x86", "x86_64"]
+        arch: ["all"]
       fail-fast: false
 
     env:
@@ -52,7 +52,7 @@ jobs:
       - name: Build APK for ${{ matrix.arch }}
         run: |
           chmod +x gradlew
-          ./gradlew ZalithLauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
+          ./gradlew Orynlauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
 
       - name: Upload Release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
@@ -62,7 +62,7 @@ jobs:
           # archive:false tek dosya yükler ve zip yapmaz.
           # Bu modda "name" parametresi dikkate alınmaz; artifact adı yüklenen dosyanın adı olur.
           name: release apk (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/apk/release/*.apk
+          path: Orynlauncher/build/outputs/apk/release/*.apk
           archive: false
 
       - name: Upload Debug APK for ${{ matrix.arch }}
@@ -71,5 +71,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: debug apk (${{ matrix.arch }})
-          path: ZalithLauncher/build/outputs/apk/debug/*.apk
+          path: Orynlauncher/build/outputs/apk/debug/*.apk
           archive: false
