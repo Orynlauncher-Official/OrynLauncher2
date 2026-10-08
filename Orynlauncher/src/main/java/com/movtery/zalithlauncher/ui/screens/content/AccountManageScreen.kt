@@ -303,7 +303,7 @@ private fun AccountManageContent(
                                 .size(76.dp)
                                 .align(Alignment.CenterHorizontally),
                             account = currentAccount,
-                            avatarSize = 76
+                            avatarSize = 76.dp
                         )
                         Text(
                             text = currentAccount.username,
