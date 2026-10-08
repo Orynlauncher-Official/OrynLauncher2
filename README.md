@@ -63,18 +63,23 @@ OrynLauncher is designed for:
 - **Minecraft: Java Edition**
 - Android devices capable of running the supported Java/Minecraft versions
 
-## 🧩 Upstream Projects & Attribution
+## 👥 Contributors
 
-OrynLauncher is based on open-source projects including the work of:
+OrynLauncher is developed and maintained by the **OrynLauncher team and community contributors**.
 
-- **Zalith Launcher 2**
-- **PojavLauncher and related upstream components**
-- Other open-source libraries used by the project
+Contributions are welcome — bug fixes, UI improvements, launcher features, testing, documentation, and performance work are all appreciated.
 
-We respect the original licenses, copyright notices, and third-party attributions.
+### Contributing
 
-**Upstream project:**  
-https://github.com/ZalithLauncher/ZalithLauncher2
+1. Keep changes focused and maintainable.
+2. Follow the existing OrynLauncher project structure.
+3. Test changes before submitting them.
+4. Preserve required third-party licenses and attribution.
+5. Do not introduce unnecessary rewrites of working launcher systems.
+
+OrynLauncher also builds on open-source upstream projects and libraries. Their required licenses, copyright notices, and attribution remain respected in the source tree.
+
+**Upstream:** Zalith Launcher 2 and related open-source components.
 
 OrynLauncher is an independent community project and is **not affiliated with, endorsed by, or an official project of Zalith Launcher or PojavLauncher**.
 
@@ -103,18 +108,6 @@ git checkout Orynlauncher-v5
 Build using the Gradle configuration included in the repository.
 
 For development, use the project's existing Gradle and Android configuration rather than replacing dependencies or modules unnecessarily.
-
-## 🤝 Contributing
-
-Contributions, bug reports, testing, and suggestions are welcome.
-
-Before making changes:
-
-1. Check the existing project structure.
-2. Keep changes focused on the requested feature or fix.
-3. Preserve upstream licenses and third-party attribution.
-4. Avoid unnecessary rewrites of working launcher systems.
-5. Test the affected functionality before submitting changes.
 
 ## 💬 Community
 
