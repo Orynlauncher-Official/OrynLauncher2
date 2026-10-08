@@ -323,7 +323,7 @@ private fun V5Home(
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(292.dp)
+                            .height(250.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -336,7 +336,7 @@ private fun V5Home(
                             AccountAvatar(
                                 account = account,
                                 onClick = toAccountManageScreen,
-                                modifier = Modifier.size(112.dp)
+                                modifier = Modifier.size(100.dp)
                             )
                             Text(
                                 text = account?.username ?: "Minecraft account",
@@ -361,13 +361,13 @@ private fun V5Home(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painterResource(R.drawable.ic_login),
+                                    painterResource(R.drawable.ic_person_outlined),
                                     null,
                                     tint = Color.White,
                                     modifier = Modifier.size(22.dp)
                                 )
                                 Text(
-                                    "Microsoft Account",
+                                    "Manage Account",
                                     color = Color.White,
                                     modifier = Modifier
                                         .padding(start = 14.dp)
@@ -382,29 +382,10 @@ private fun V5Home(
                         }
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = account?.username ?: "Raze",
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "Minecraft account",
-                            color = Color.White.copy(alpha = .52f),
-                            fontSize = 13.sp
-                        )
-                    }
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(76.dp)
+                            .height(64.dp)
                             .padding(top = 8.dp)
                             .clip(RoundedCornerShape(38.dp))
                             .background(Color.White.copy(alpha = .17f))
