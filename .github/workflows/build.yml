@@ -54,6 +54,11 @@ jobs:
           chmod +x gradlew
           ./gradlew Orynlauncher:assemble${{ inputs.variant }} -Darch=${{ matrix.arch }}
 
+      - name: Rename Release APK
+        if: inputs.variant == 'Release'
+        run: |
+          mv Orynlauncher/build/outputs/apk/release/*.apk Orynlauncher/build/outputs/apk/release/OrynLauncherV5-Release.apk
+
       - name: Upload Release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
         continue-on-error: true
@@ -61,15 +66,20 @@ jobs:
         with:
           # archive:false tek dosya yükler ve zip yapmaz.
           # Bu modda "name" parametresi dikkate alınmaz; artifact adı yüklenen dosyanın adı olur.
-          name: release apk (${{ matrix.arch }})
-          path: Orynlauncher/build/outputs/apk/release/*.apk
+          name: OrynLauncherV5-Release.apk
+          path: Orynlauncher/build/outputs/apk/release/OrynLauncherV5-Release.apk
           archive: false
+
+      - name: Rename Debug APK
+        if: inputs.variant == 'Debug'
+        run: |
+          mv Orynlauncher/build/outputs/apk/debug/*.apk Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
 
       - name: Upload Debug APK for ${{ matrix.arch }}
         if: inputs.variant == 'Debug'
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: debug apk (${{ matrix.arch }})
-          path: Orynlauncher/build/outputs/apk/debug/*.apk
+          name: OrynLauncherV5-Debug.apk
+          path: Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
           archive: false
