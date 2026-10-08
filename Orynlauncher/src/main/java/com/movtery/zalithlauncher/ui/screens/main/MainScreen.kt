@@ -200,7 +200,7 @@ fun MainScreen(
             TopBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(if (inLauncherScreen) 0.dp else 40.dp),
                 mainScreenKey = mainScreenKey,
                 inLauncherScreen = inLauncherScreen,
                 taskRunning = tasks.isEmpty(),
