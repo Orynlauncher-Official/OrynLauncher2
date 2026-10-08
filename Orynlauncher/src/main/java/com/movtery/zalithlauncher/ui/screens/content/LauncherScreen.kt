@@ -320,10 +320,12 @@ private fun V5Home(
                         )
                     }
 
+                    Spacer(modifier = Modifier.height(18.dp))
+
                     Box(
                         modifier = Modifier
                             .width(365.dp)
-                            .height(215.dp)
+                            .height(235.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
                             .border(1.dp, panelBorder, RoundedCornerShape(30.dp))
@@ -380,23 +382,6 @@ private fun V5Home(
                                 )
                             }
                         }
-                    }
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(top = 6.dp)
-                    ) {
-                        Text(
-                            text = account?.username ?: "Raze",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "Minecraft account",
-                            color = Color.White.copy(alpha = .55f),
-                            fontSize = 14.sp
-                        )
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
