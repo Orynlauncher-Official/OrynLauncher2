@@ -19,6 +19,8 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -36,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +46,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -143,9 +147,14 @@ private fun TabMenu(
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
+            .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
+            .background(
+                color = Color(0xFF0E0F11),
+                shape = RoundedCornerShape(28.dp)
+            )
             .fadeEdge(scrollState)
             .width(IntrinsicSize.Min)
-            .padding(start = 8.dp)
+            .padding(horizontal = 6.dp, vertical = 10.dp)
             .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -163,6 +172,7 @@ private fun TabMenu(
             }
 
             NavigationRailItem(
+                modifier = Modifier.padding(horizontal = 2.dp),
                 selected = settingsScreenKey == item.key,
                 onClick = {
                     navigateTo(item.key)
@@ -177,7 +187,14 @@ private fun TabMenu(
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
-                }
+                },
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = Color(0xFF080808),
+                    selectedTextColor = Color.White,
+                    indicatorColor = Color(0xFFE4E4E4),
+                    unselectedIconColor = Color(0xFFD0D0D0),
+                    unselectedTextColor = Color(0xFF929292)
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
