@@ -536,14 +536,99 @@ private fun MinecraftOverworldShowcase(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Image(
-        painter = painterResource(id = R.drawable.oryn_cinematic_showcase),
-        contentDescription = "Oryn cinematic Minecraft landscape",
-        contentScale = ContentScale.Crop,
+    val floatMotion = remember { Animatable(0f) }
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            while (isActive) {
+                floatMotion.animateTo(1f, tween(1800, easing = LinearEasing))
+                floatMotion.animateTo(0f, tween(1800, easing = LinearEasing))
+            }
+        } else {
+            floatMotion.snapTo(0f)
+        }
+    }
+
+    Box(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF111418))
-    )
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(Color(0xFF101A26), Color(0xFF182D3C), Color(0xFF0B111A))
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            // Soft cyan glow behind the block.
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0x6648DDF5), Color(0x2248DDF5), Color.Transparent),
+                    center = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.48f),
+                    radius = h * 0.62f
+                ),
+                radius = h * 0.62f,
+                center = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.48f)
+            )
+
+            // Floating isometric diamond block, drawn directly with Compose Canvas.
+            val unit = h * 0.30f
+            val cx = w * 0.5f
+            val cy = h * 0.47f - floatMotion.value * h * 0.035f
+            val top = androidx.compose.ui.geometry.Offset(cx, cy - unit * 0.78f)
+            val left = androidx.compose.ui.geometry.Offset(cx - unit, cy - unit * 0.20f)
+            val right = androidx.compose.ui.geometry.Offset(cx + unit, cy - unit * 0.20f)
+            val mid = androidx.compose.ui.geometry.Offset(cx, cy + unit * 0.35f)
+            val bottomLeft = androidx.compose.ui.geometry.Offset(cx - unit, cy + unit * 0.92f)
+            val bottomRight = androidx.compose.ui.geometry.Offset(cx + unit, cy + unit * 0.92f)
+            val bottom = androidx.compose.ui.geometry.Offset(cx, cy + unit * 1.50f)
+
+            val topFace = Path().apply {
+                moveTo(top.x, top.y); lineTo(right.x, right.y); lineTo(mid.x, mid.y); lineTo(left.x, left.y); close()
+            }
+            val leftFace = Path().apply {
+                moveTo(left.x, left.y); lineTo(mid.x, mid.y); lineTo(bottom.x, bottom.y); lineTo(bottomLeft.x, bottomLeft.y); close()
+            }
+            val rightFace = Path().apply {
+                moveTo(mid.x, mid.y); lineTo(right.x, right.y); lineTo(bottomRight.x, bottomRight.y); lineTo(bottom.x, bottom.y); close()
+            }
+            drawPath(topFace, Brush.linearGradient(listOf(Color(0xFFE5FFFF), Color(0xFF54DDEB), Color(0xFF1697C6)), start = top, end = mid))
+            drawPath(leftFace, Brush.linearGradient(listOf(Color(0xFF39CDE1), Color(0xFF0873A8)), start = left, end = bottom))
+            drawPath(rightFace, Brush.linearGradient(listOf(Color(0xFF168DBD), Color(0xFF06466F)), start = right, end = bottom))
+
+            // Pixel-like facets make the object read as a Minecraft block.
+            val facet = Path().apply {
+                moveTo(cx - unit * 0.62f, cy - unit * 0.20f)
+                lineTo(cx - unit * 0.12f, cy + unit * 0.05f)
+                lineTo(cx - unit * 0.12f, cy + unit * 0.42f)
+                lineTo(cx - unit * 0.62f, cy + unit * 0.12f)
+                close()
+            }
+            drawPath(facet, Color(0x553DFFFF))
+            drawPath(topFace, Color.White.copy(alpha = 0.65f), style = Stroke(width = 2.dp.toPx()))
+            drawPath(leftFace, Color(0xFF7DEEFF), style = Stroke(width = 1.5.dp.toPx()))
+            drawPath(rightFace, Color(0xFF3AB9E6), style = Stroke(width = 1.5.dp.toPx()))
+
+            // Small floating pixel sparks.
+            listOf(
+                androidx.compose.ui.geometry.Offset(cx - unit * 1.45f, cy - unit * 0.65f),
+                androidx.compose.ui.geometry.Offset(cx + unit * 1.38f, cy - unit * 0.10f),
+                androidx.compose.ui.geometry.Offset(cx + unit * 0.95f, cy - unit * 1.10f)
+            ).forEachIndexed { index, point ->
+                val r = (if (index == 1) 4f else 3f) * density
+                drawRect(Color(0xFF8AF1FF).copy(alpha = 0.65f), topLeft = androidx.compose.ui.geometry.Offset(point.x - r / 2, point.y - r / 2), size = Size(r, r))
+            }
+        }
+        Text(
+            text = "DIAMOND BLOCK",
+            color = Color.White.copy(alpha = 0.82f),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 3.sp,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp)
+        )
+    }
 }
 
 @Composable
