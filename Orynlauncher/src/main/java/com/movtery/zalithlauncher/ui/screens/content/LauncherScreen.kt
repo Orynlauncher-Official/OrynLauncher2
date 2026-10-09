@@ -569,9 +569,9 @@ private fun MinecraftOverworldShowcase(
             val x = ((i * .31f + t * .20f) % 1.35f) * w - cloudWidth
             val y = h * (.12f + (i % 3) * .09f)
             val cloud = Color(0xFFEAF3F6).copy(alpha = .82f)
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.Size(cloudWidth, h * .035f))
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .18f, y - h * .025f), androidx.compose.ui.Size(cloudWidth * .46f, h * .04f))
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .56f, y - h * .012f), androidx.compose.ui.Size(cloudWidth * .30f, h * .028f))
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.geometry.Size(cloudWidth, h * .035f))
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .18f, y - h * .025f), androidx.compose.ui.geometry.Size(cloudWidth * .46f, h * .04f))
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .56f, y - h * .012f), androidx.compose.ui.geometry.Size(cloudWidth * .30f, h * .028f))
         }
 
         // Layered block mountains create depth behind the biome.
@@ -589,14 +589,14 @@ private fun MinecraftOverworldShowcase(
         drawPath(near, Color(0xFF567B65))
 
         // Ground and stepped grass/dirt blocks.
-        drawRect(Color(0xFF4D8A43), androidx.compose.ui.geometry.Offset(0f, h * .70f), androidx.compose.ui.Size(w, h * .30f))
+        drawRect(Color(0xFF4D8A43), androidx.compose.ui.geometry.Offset(0f, h * .70f), androidx.compose.ui.geometry.Size(w, h * .30f))
         val block = w / 18f
         for (i in 0..18) {
             val bx = i * block
             val variation = ((i * 7) % 4) * h * .012f
-            drawRect(Color(0xFF6EAD4F), androidx.compose.ui.geometry.Offset(bx, h * (.69f + variation)), androidx.compose.ui.Size(block + 1f, h * .055f))
-            drawRect(Color(0xFF805A3A), androidx.compose.ui.geometry.Offset(bx, h * (.745f + variation)), androidx.compose.ui.Size(block + 1f, h * .07f))
-            drawRect(Color(0xFF63452F), androidx.compose.ui.geometry.Offset(bx, h * (.815f + variation)), androidx.compose.ui.Size(block + 1f, h * .08f))
+            drawRect(Color(0xFF6EAD4F), androidx.compose.ui.geometry.Offset(bx, h * (.69f + variation)), androidx.compose.ui.geometry.Size(block + 1f, h * .055f))
+            drawRect(Color(0xFF805A3A), androidx.compose.ui.geometry.Offset(bx, h * (.745f + variation)), androidx.compose.ui.geometry.Size(block + 1f, h * .07f))
+            drawRect(Color(0xFF63452F), androidx.compose.ui.geometry.Offset(bx, h * (.815f + variation)), androidx.compose.ui.geometry.Size(block + 1f, h * .08f))
         }
 
         // River biome: a winding stepped ribbon of water crossing the terrain.
@@ -607,8 +607,8 @@ private fun MinecraftOverworldShowcase(
                 lineTo(w * .46f, h * .73f); lineTo(w * .48f, h * .83f); close()
             }
             drawPath(river, Color(0xFF3E9FD0))
-            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .49f, h * .82f), androidx.compose.ui.Size(w * .08f, h * .018f))
-            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .52f, h * .72f), androidx.compose.ui.Size(w * .055f, h * .014f))
+            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .49f, h * .82f), androidx.compose.ui.geometry.Size(w * .08f, h * .018f))
+            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .52f, h * .72f), androidx.compose.ui.geometry.Size(w * .055f, h * .014f))
         }
 
         // Trees are built from square trunks and square leaf blocks.
@@ -620,16 +620,16 @@ private fun MinecraftOverworldShowcase(
             val trunkW = block * depth * .34f
             val trunkH = h * depth * .16f
             val trunkColor = Color(0xFF725033)
-            drawRect(trunkColor, androidx.compose.ui.geometry.Offset(x, baseY - trunkH), androidx.compose.ui.Size(trunkW, trunkH))
+            drawRect(trunkColor, androidx.compose.ui.geometry.Offset(x, baseY - trunkH), androidx.compose.ui.geometry.Size(trunkW, trunkH))
             val leaf = if (stage == 4) Color(0xFFE8A5C8) else if (stage == 1) Color(0xFF5F9E45) else Color(0xFF2F6E3C)
             val canopyW = block * depth * 1.75f
             val canopyH = h * depth * .20f
             val topY = baseY - trunkH - canopyH * .82f
-            drawRect(leaf.copy(alpha = .94f), androidx.compose.ui.geometry.Offset(x - canopyW * .35f, topY + canopyH * .28f), androidx.compose.ui.Size(canopyW, canopyH * .62f))
-            drawRect(leaf, androidx.compose.ui.geometry.Offset(x - canopyW * .12f, topY), androidx.compose.ui.Size(canopyW * .68f, canopyH * .48f))
-            drawRect(leaf.copy(alpha = .86f), androidx.compose.ui.geometry.Offset(x - canopyW * .48f, topY + canopyH * .40f), androidx.compose.ui.Size(canopyW * .42f, canopyH * .40f))
+            drawRect(leaf.copy(alpha = .94f), androidx.compose.ui.geometry.Offset(x - canopyW * .35f, topY + canopyH * .28f), androidx.compose.ui.geometry.Size(canopyW, canopyH * .62f))
+            drawRect(leaf, androidx.compose.ui.geometry.Offset(x - canopyW * .12f, topY), androidx.compose.ui.geometry.Size(canopyW * .68f, canopyH * .48f))
+            drawRect(leaf.copy(alpha = .86f), androidx.compose.ui.geometry.Offset(x - canopyW * .48f, topY + canopyH * .40f), androidx.compose.ui.geometry.Size(canopyW * .42f, canopyH * .40f))
             if (stage == 4) {
-                drawRect(Color(0xFFFFD8EB), androidx.compose.ui.geometry.Offset(x - canopyW * .08f, topY + canopyH * .08f), androidx.compose.ui.Size(canopyW * .20f, canopyH * .12f))
+                drawRect(Color(0xFFFFD8EB), androidx.compose.ui.geometry.Offset(x - canopyW * .08f, topY + canopyH * .08f), androidx.compose.ui.geometry.Size(canopyW * .20f, canopyH * .12f))
             }
         }
 
@@ -640,14 +640,14 @@ private fun MinecraftOverworldShowcase(
                 lineTo(w * .19f, h * .44f); lineTo(w * .17f, h * .47f); close()
             }
             drawPath(snow, Color(0xFFEAF1F0))
-            drawRect(Color(0xFFB5D5E5), androidx.compose.ui.geometry.Offset(w * .47f, h * .43f), androidx.compose.ui.Size(w * .04f, h * .025f))
+            drawRect(Color(0xFFB5D5E5), androidx.compose.ui.geometry.Offset(w * .47f, h * .43f), androidx.compose.ui.geometry.Size(w * .04f, h * .025f))
         }
 
         // Soft atmospheric haze at the horizon, kept subtle over the scene.
         drawRect(
             Brush.verticalGradient(listOf(Color.Transparent, Color(0xFFB7D0D6).copy(alpha = .16f)), h * .42f, h * .78f),
             androidx.compose.ui.geometry.Offset(0f, h * .42f),
-            androidx.compose.ui.Size(w, h * .36f)
+            androidx.compose.ui.geometry.Size(w, h * .36f)
         )
     }
 }
