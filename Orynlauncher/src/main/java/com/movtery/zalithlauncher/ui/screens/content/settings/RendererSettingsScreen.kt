@@ -158,7 +158,7 @@ fun RendererSettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScrollWithBar(state = rememberScrollState())
-                .padding(all = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             isVisible = isVisible
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
@@ -184,7 +184,7 @@ fun RendererSettingsScreen(
 
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
+                        position = CardPosition.Single,
                         unit = AllSettings.renderer,
                         items = Renderers.getRenderers(),
                         title = stringResource(R.string.settings_renderer_global_renderer_title),
@@ -259,7 +259,7 @@ fun RendererSettingsScreen(
 
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.vulkanDriver,
                         items = DriverPluginManager.getDriverList(),
                         title = stringResource(R.string.settings_renderer_global_vulkan_driver_title),
@@ -304,7 +304,7 @@ fun RendererSettingsScreen(
 
                     SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         title = stringResource(R.string.settings_renderer_download_turnip),
                         summary = stringResource(R.string.settings_renderer_download_turnip_summary),
                         onClick = {
@@ -333,7 +333,7 @@ fun RendererSettingsScreen(
 
                     ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.graphicsApi,
                         items = GraphicsApi.entries,
                         title = stringResource(R.string.settings_game_graphics_api_title),
@@ -349,7 +349,7 @@ fun RendererSettingsScreen(
 
                     IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.resolutionRatio,
                         title = stringResource(R.string.settings_renderer_resolution_scale_title),
                         summary = stringResource(R.string.settings_renderer_resolution_scale_summary),
@@ -360,7 +360,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Bottom,
+                        position = CardPosition.Single,
                         unit = AllSettings.gameFullScreen,
                         title = stringResource(R.string.settings_renderer_full_screen_title),
                         summary = stringResource(R.string.settings_renderer_full_screen_summary)
@@ -376,7 +376,7 @@ fun RendererSettingsScreen(
                 ) {
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
+                        position = CardPosition.Single,
                         unit = AllSettings.sustainedPerformance,
                         title = stringResource(R.string.settings_renderer_sustained_performance_title),
                         summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
@@ -386,7 +386,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.zinkPreferSystemDriver,
                         title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
                         summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
@@ -412,7 +412,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.vsyncInZink,
                         title = stringResource(R.string.settings_renderer_vsync_in_zink_title),
                         summary = stringResource(R.string.settings_renderer_vsync_in_zink_summary)
@@ -420,7 +420,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.bigCoreAffinity,
                         title = stringResource(R.string.settings_renderer_force_big_core_title),
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
@@ -430,7 +430,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.fpsLimitEnabled,
                         title = stringResource(R.string.settings_renderer_fps_limit_title),
                         summary = stringResource(R.string.settings_renderer_fps_limit_summary),
@@ -449,7 +449,7 @@ fun RendererSettingsScreen(
                     if (AllSettings.fpsLimitEnabled.state) {
                         IntSliderSettingsCard(
                             modifier = Modifier.fillMaxWidth(),
-                            position = CardPosition.Middle,
+                            position = CardPosition.Single,
                             value = AllSettings.fpsLimit.state,
                             onValueChange = { AllSettings.fpsLimit.updateState(it) },
                             onValueChangeFinished = {
@@ -478,7 +478,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         //Kopper Zink 选中时，无论保存的偏好值是什么，都在界面上显示为关闭+禁用状态
                         checked = AllSettings.useSurfaceView.state && !isKopperZinkSelected,
                         enabled = !isKopperZinkSelected,
@@ -516,7 +516,7 @@ fun RendererSettingsScreen(
 
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = CardPosition.Single,
                         unit = AllSettings.dumpShaders,
                         title = stringResource(R.string.settings_renderer_shader_dump_title),
                         summary = stringResource(R.string.settings_renderer_shader_dump_summary)
@@ -584,7 +584,7 @@ private fun RunBenchmarkPill(
     val colorScheme = MaterialTheme.colorScheme
     val gradient = remember(colorScheme) {
         Brush.horizontalGradient(
-            listOf(colorScheme.primary, colorScheme.tertiary)
+            listOf(Color(0xFF202631), Color(0xFF202631))
         )
     }
 
@@ -592,7 +592,7 @@ private fun RunBenchmarkPill(
         modifier = modifier,
         shape = CircleShape,
         color = Color.Transparent,
-        shadowElevation = 3.dp,
+        shadowElevation = 0.dp,
         onClick = onClick
     ) {
         Row(
@@ -605,14 +605,14 @@ private fun RunBenchmarkPill(
             Icon(
                 painter = painterResource(R.drawable.ic_rocket_launch_filled),
                 contentDescription = null,
-                tint = colorScheme.onPrimary,
+                tint = Color(0xFFD5DCEB),
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 modifier = Modifier.padding(start = 10.dp),
                 text = stringResource(R.string.benchmark_run),
                 style = MaterialTheme.typography.titleSmall,
-                color = colorScheme.onPrimary
+                color = Color(0xFFE5E9F2)
             )
         }
     }
