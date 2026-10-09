@@ -551,8 +551,8 @@ private fun MinecraftOverworldShowcase(
         val w = size.width
         val h = size.height
         val t = progress.value
-        val stage = (t * 5f).toInt().coerceIn(0, 4)
-        val local = (t * 5f) - stage
+        val stage = (t * 6f).toInt().coerceIn(0, 5)
+        val local = (t * 6f) - stage
         val skyTop = Color(0xFF5D91B8)
         val skyBottom = Color(0xFFB9D7E5)
         drawRect(Brush.verticalGradient(listOf(skyTop, skyBottom), 0f, h * .78f))
@@ -608,7 +608,7 @@ private fun MinecraftOverworldShowcase(
         }
 
         // Trees are built from square trunks and square leaf blocks.
-        val treeCount = if (stage == 0 || stage == 4) 9 else 5
+        val treeCount = if (stage == 0 || stage == 4 || stage == 5) 9 else 5
         for (i in 0 until treeCount) {
             val x = (i.toFloat() / treeCount) * w + (if (stage == 0) 0f else w * .04f)
             val depth = .45f + ((i * 13) % 5) * .055f
