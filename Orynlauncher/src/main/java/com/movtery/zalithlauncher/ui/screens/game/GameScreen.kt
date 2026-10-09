@@ -92,6 +92,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.game.recorder.GameRecorder
 import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.discord.OrynDiscordPresence
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.androidText
@@ -507,6 +508,11 @@ fun GameScreen(
     gamepadViewModel: GamepadViewModel,
 ) {
     val context = LocalContext.current
+    DisposableEffect(version.name, AllSettings.discordRichPresence.state) {
+        val presence = if (AllSettings.discordRichPresence.state) OrynDiscordPresence(context) else null
+        presence?.start(version.name)
+        onDispose { presence?.stop() }
+    }
     val viewModel = rememberGameViewModel(version) { mode ->
         eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(mode))
     }
