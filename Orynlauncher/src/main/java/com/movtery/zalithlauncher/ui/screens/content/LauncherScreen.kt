@@ -433,7 +433,7 @@ private fun V5Home(
                         .clip(RoundedCornerShape(28.dp))
                         .background(panel)
                         .border(1.dp, panelBorder, RoundedCornerShape(28.dp))
-                        .padding(26.dp)
+                        .padding(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
