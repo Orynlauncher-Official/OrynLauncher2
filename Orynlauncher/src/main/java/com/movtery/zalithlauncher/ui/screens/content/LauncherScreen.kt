@@ -608,7 +608,7 @@ private fun MinecraftOverworldShowcase(
                     androidx.media3.ui.PlayerView(viewContext).apply {
                         useController = false
                         setShutterBackgroundColor(android.graphics.Color.rgb(17, 20, 24))
-                        player = this@remember
+                        this.player = player
                     }
                 },
                 update = { it.player = player }
