@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.basicMarquee
@@ -74,6 +75,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -96,6 +101,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.BuildKeys
@@ -503,38 +509,142 @@ private fun V5Home(
 
                     Spacer(Modifier.weight(1f))
 
-                    Box(
+                    MinecraftOverworldShowcase(
+                        isVisible = isVisible,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(220.dp)
                             .clip(RoundedCornerShape(24.dp))
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.img_minecraft),
-                            contentDescription = "Minecraft",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                            colorFilter = ColorFilter.colorMatrix(
-                                ColorMatrix().apply { setToSaturation(0f) }
-                            ),
-                            alpha = 0.62f
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    Brush.verticalGradient(
-                                        listOf(
-                                            pageBackground.copy(alpha = .20f),
-                                            pageBackground.copy(alpha = .72f)
-                                        )
-                                    )
-                                )
-                        )
-                    }
+                    )
                 }
             }
         }
+    }
+}
+
+
+/**
+ * Lightweight animated, block-built Overworld diorama for the Play screen.
+ * It is intentionally rendered in Compose so it works offline without a
+ * large 3D engine or a downloaded video. Animation is suspended while the
+ * launcher home screen is not visible.
+ */
+@Composable
+private fun MinecraftOverworldShowcase(
+    isVisible: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            while (true) {
+                progress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 60000, easing = LinearEasing)
+                )
+                progress.snapTo(0f)
+            }
+        }
+    }
+
+    Canvas(modifier = modifier.background(Color(0xFF8DB7D1))) {
+        val w = size.width
+        val h = size.height
+        val t = progress.value
+        val stage = (t * 5f).toInt().coerceIn(0, 4)
+        val local = (t * 5f) - stage
+        val skyTop = Color(0xFF5D91B8)
+        val skyBottom = Color(0xFFB9D7E5)
+        drawRect(Brush.verticalGradient(listOf(skyTop, skyBottom), 0f, h * .78f))
+        drawCircle(Color(0xFFFFF0B5).copy(alpha = .92f), radius = h * .075f,
+            center = androidx.compose.ui.geometry.Offset(w * .79f, h * .20f))
+
+        // Slow parallax clouds.
+        for (i in 0..3) {
+            val cloudWidth = w * (.13f + (i % 2) * .035f)
+            val x = ((i * .31f + t * .20f) % 1.35f) * w - cloudWidth
+            val y = h * (.12f + (i % 3) * .09f)
+            val cloud = Color(0xFFEAF3F6).copy(alpha = .82f)
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.Size(cloudWidth, h * .035f))
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .18f, y - h * .025f), androidx.compose.ui.Size(cloudWidth * .46f, h * .04f))
+            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cloudWidth * .56f, y - h * .012f), androidx.compose.ui.Size(cloudWidth * .30f, h * .028f))
+        }
+
+        // Layered block mountains create depth behind the biome.
+        val far = Path().apply {
+            moveTo(0f, h * .67f); lineTo(w * .13f, h * .38f); lineTo(w * .22f, h * .50f)
+            lineTo(w * .39f, h * .27f); lineTo(w * .54f, h * .53f); lineTo(w * .70f, h * .34f)
+            lineTo(w * .88f, h * .49f); lineTo(w, h * .39f); lineTo(w, h * .78f); lineTo(0f, h * .78f); close()
+        }
+        drawPath(far, Color(0xFF7795A2))
+        val near = Path().apply {
+            moveTo(0f, h * .72f); lineTo(w * .18f, h * .52f); lineTo(w * .30f, h * .66f)
+            lineTo(w * .48f, h * .44f); lineTo(w * .63f, h * .63f); lineTo(w * .82f, h * .48f)
+            lineTo(w, h * .64f); lineTo(w, h * .84f); lineTo(0f, h * .84f); close()
+        }
+        drawPath(near, Color(0xFF567B65))
+
+        // Ground and stepped grass/dirt blocks.
+        drawRect(Color(0xFF4D8A43), androidx.compose.ui.geometry.Offset(0f, h * .70f), androidx.compose.ui.Size(w, h * .30f))
+        val block = w / 18f
+        for (i in 0..18) {
+            val bx = i * block
+            val variation = ((i * 7) % 4) * h * .012f
+            drawRect(Color(0xFF6EAD4F), androidx.compose.ui.geometry.Offset(bx, h * (.69f + variation)), androidx.compose.ui.Size(block + 1f, h * .055f))
+            drawRect(Color(0xFF805A3A), androidx.compose.ui.geometry.Offset(bx, h * (.745f + variation)), androidx.compose.ui.Size(block + 1f, h * .07f))
+            drawRect(Color(0xFF63452F), androidx.compose.ui.geometry.Offset(bx, h * (.815f + variation)), androidx.compose.ui.Size(block + 1f, h * .08f))
+        }
+
+        // River biome: a winding stepped ribbon of water crossing the terrain.
+        if (stage == 2) {
+            val river = Path().apply {
+                moveTo(w * .42f, h); lineTo(w * .53f, h); lineTo(w * .58f, h * .86f)
+                lineTo(w * .52f, h * .77f); lineTo(w * .61f, h * .70f); lineTo(w * .56f, h * .66f)
+                lineTo(w * .46f, h * .73f); lineTo(w * .48f, h * .83f); close()
+            }
+            drawPath(river, Color(0xFF3E9FD0))
+            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .49f, h * .82f), androidx.compose.ui.Size(w * .08f, h * .018f))
+            drawRect(Color(0xFF91D9EE), androidx.compose.ui.geometry.Offset(w * .52f, h * .72f), androidx.compose.ui.Size(w * .055f, h * .014f))
+        }
+
+        // Trees are built from square trunks and square leaf blocks.
+        val treeCount = if (stage == 0 || stage == 4) 9 else 5
+        for (i in 0 until treeCount) {
+            val x = (i.toFloat() / treeCount) * w + (if (stage == 0) 0f else w * .04f)
+            val depth = .45f + ((i * 13) % 5) * .055f
+            val baseY = h * (.75f + (i % 3) * .025f)
+            val trunkW = block * depth * .34f
+            val trunkH = h * depth * .16f
+            val trunkColor = Color(0xFF725033)
+            drawRect(trunkColor, androidx.compose.ui.geometry.Offset(x, baseY - trunkH), androidx.compose.ui.Size(trunkW, trunkH))
+            val leaf = if (stage == 4) Color(0xFFE8A5C8) else if (stage == 1) Color(0xFF5F9E45) else Color(0xFF2F6E3C)
+            val canopyW = block * depth * 1.75f
+            val canopyH = h * depth * .20f
+            val topY = baseY - trunkH - canopyH * .82f
+            drawRect(leaf.copy(alpha = .94f), androidx.compose.ui.geometry.Offset(x - canopyW * .35f, topY + canopyH * .28f), androidx.compose.ui.Size(canopyW, canopyH * .62f))
+            drawRect(leaf, androidx.compose.ui.geometry.Offset(x - canopyW * .12f, topY), androidx.compose.ui.Size(canopyW * .68f, canopyH * .48f))
+            drawRect(leaf.copy(alpha = .86f), androidx.compose.ui.geometry.Offset(x - canopyW * .48f, topY + canopyH * .40f), androidx.compose.ui.Size(canopyW * .42f, canopyH * .40f))
+            if (stage == 4) {
+                drawRect(Color(0xFFFFD8EB), androidx.compose.ui.geometry.Offset(x - canopyW * .08f, topY + canopyH * .08f), androidx.compose.ui.Size(canopyW * .20f, canopyH * .12f))
+            }
+        }
+
+        // Mountain phase gets snow-capped, angular peaks.
+        if (stage == 3) {
+            val snow = Path().apply {
+                moveTo(w * .12f, h * .50f); lineTo(w * .18f, h * .38f); lineTo(w * .22f, h * .47f)
+                lineTo(w * .19f, h * .44f); lineTo(w * .17f, h * .47f); close()
+            }
+            drawPath(snow, Color(0xFFEAF1F0))
+            drawRect(Color(0xFFB5D5E5), androidx.compose.ui.geometry.Offset(w * .47f, h * .43f), androidx.compose.ui.Size(w * .04f, h * .025f))
+        }
+
+        // Soft atmospheric haze at the horizon, kept subtle over the scene.
+        drawRect(
+            Brush.verticalGradient(listOf(Color.Transparent, Color(0xFFB7D0D6).copy(alpha = .16f)), h * .42f, h * .78f),
+            androidx.compose.ui.geometry.Offset(0f, h * .42f),
+            androidx.compose.ui.Size(w, h * .36f)
+        )
     }
 }
 
