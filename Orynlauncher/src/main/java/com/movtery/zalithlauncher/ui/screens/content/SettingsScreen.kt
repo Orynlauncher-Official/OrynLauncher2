@@ -62,7 +62,6 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
-import com.movtery.zalithlauncher.ui.screens.content.settings.AboutInfoScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.ControlManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.ControlSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.GameSettingsScreen
@@ -128,7 +127,6 @@ private val settingItems = listOf(
     CategoryItem(NormalNavKey.Settings.Launcher, { CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
     CategoryItem(NormalNavKey.Settings.JavaManager, { CategoryIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
     CategoryItem(NormalNavKey.Settings.ControlManager, { CategoryIcon(R.drawable.ic_videogame_asset_outlined, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
-    CategoryItem(NormalNavKey.Settings.AboutInfo, { CategoryIcon(R.drawable.ic_info_outlined, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
 )
 
 @Composable
@@ -272,20 +270,6 @@ private fun NavigationUI(
                     }
                     entry<NormalNavKey.Settings.ControlManager> {
                         ControlManageScreen(key, settingsScreenKey, mainScreenKey, eventViewModel, submitError)
-                    }
-                    entry<NormalNavKey.Settings.AboutInfo> {
-                        AboutInfoScreen(
-                            key = key,
-                            settingsScreenKey = settingsScreenKey,
-                            mainScreenKey = mainScreenKey,
-                            checkUpdate = {
-                                eventViewModel.sendEvent(EventViewModel.Event.CheckUpdate)
-                            },
-                            openLicense = openLicenseScreen,
-                            openLink = { url ->
-                                eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
-                            }
-                        )
                     }
                 }
             )
