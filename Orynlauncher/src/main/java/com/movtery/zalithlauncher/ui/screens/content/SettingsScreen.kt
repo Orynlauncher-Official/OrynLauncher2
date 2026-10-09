@@ -147,8 +147,8 @@ private fun TabMenu(
         modifier = modifier
             .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
             .background(
-                color = Color(0xFF0E0F11),
-                shape = RoundedCornerShape(28.dp)
+                color = Color(0xFF10131D),
+                shape = RoundedCornerShape(20.dp)
             )
             .fadeEdge(scrollState)
             .width(IntrinsicSize.Min)
@@ -187,11 +187,11 @@ private fun TabMenu(
                     )
                 },
                 colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = Color(0xFF080808),
-                    selectedTextColor = Color.White,
-                    indicatorColor = Color(0xFFE4E4E4),
-                    unselectedIconColor = Color(0xFFD0D0D0),
-                    unselectedTextColor = Color(0xFF929292)
+                    selectedIconColor = Color(0xFFFFFFFF),
+                    selectedTextColor = Color(0xFFFFFFFF),
+                    indicatorColor = Color(0xFF414FC4),
+                    unselectedIconColor = Color(0xFFB7C0D8),
+                    unselectedTextColor = Color(0xFFA0A8BC)
                 )
             )
 
