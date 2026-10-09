@@ -256,6 +256,14 @@ fun LauncherSettingsScreen(
                     SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
                         position = CardPosition.Middle,
+                        unit = AllSettings.discordRichPresence,
+                        title = stringResource(R.string.settings_discord_rich_presence_title),
+                        summary = stringResource(R.string.settings_discord_rich_presence_summary)
+                    )
+
+                    SwitchSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.launcherFestivalEffects,
                         title = stringResource(R.string.settings_launcher_festivals_effects_title),
                         summary = stringResource(R.string.settings_launcher_festivals_effects_summary)
