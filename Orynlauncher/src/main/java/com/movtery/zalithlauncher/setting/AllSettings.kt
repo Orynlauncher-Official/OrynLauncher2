@@ -685,6 +685,9 @@ object AllSettings : SettingsRegistry() {
      */
     val searchSavesFilter = stringSetting("searchSavesFilter", "")
 
+    /** Discord Rich Presence */
+    val discordRichPresence = boolSetting("discordRichPresence", true)
+
     /**
      * 在下载页面显示快照版本（snapshot/old/aprilfools等）
      */
