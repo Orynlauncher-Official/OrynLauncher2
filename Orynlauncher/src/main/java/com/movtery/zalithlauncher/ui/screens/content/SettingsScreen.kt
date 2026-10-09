@@ -22,6 +22,7 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
@@ -91,30 +93,64 @@ fun SettingsScreen(
         currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
 
-        Row(modifier = Modifier.fillMaxSize()) {
-            TabMenu(
-                modifier = Modifier.fillMaxHeight(),
-                isVisible = isVisible,
-                settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
-                navigateTo = { settingKey ->
-                    key.backStack.navigateOnce(settingKey)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF090D17))
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
+                Column(
+                    modifier = Modifier.padding(start = 12.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Settings",
+                        color = Color(0xFFF1F3FF),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "Customize your OrynLauncher experience",
+                        color = Color(0xFF9CA8C5),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
-            )
-            NavigationUI(
-                key = key,
-                mainScreenKey = backStackViewModel.mainScreen.currentKey,
-                settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
-                onCurrentKeyChange = { newKey ->
-                    backStackViewModel.settingsScreen.currentKey = newKey
-                },
-                openLicenseScreen = openLicenseScreen,
-                toHomePageEditor = {
-                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.HomePageEditor)
-                },
-                eventViewModel = eventViewModel,
-                submitError = submitError,
-                modifier = Modifier.fillMaxHeight()
-            )
+            }
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                TabMenu(
+                    modifier = Modifier.fillMaxHeight(),
+                    isVisible = isVisible,
+                    settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
+                    navigateTo = { settingKey ->
+                        key.backStack.navigateOnce(settingKey)
+                    }
+                )
+                NavigationUI(
+                    key = key,
+                    mainScreenKey = backStackViewModel.mainScreen.currentKey,
+                    settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
+                    onCurrentKeyChange = { newKey ->
+                        backStackViewModel.settingsScreen.currentKey = newKey
+                    },
+                    openLicenseScreen = openLicenseScreen,
+                    toHomePageEditor = {
+                        backStackViewModel.mainScreen.navigateTo(NormalNavKey.HomePageEditor)
+                    },
+                    eventViewModel = eventViewModel,
+                    submitError = submitError,
+                    modifier = Modifier.fillMaxHeight().weight(1f)
+                )
+            }
         }
     }
 }
