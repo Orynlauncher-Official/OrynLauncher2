@@ -528,95 +528,22 @@ private fun V5Home(
 
 
 /**
- * Real, muted, looping cinematic playback. Place licensed footage at
- * Orynlauncher/src/main/res/raw/oryn_cinematic.mp4. Never fake video with Canvas.
+ * Static, lightweight cinematic artwork for the Oryn launcher home screen.
+ * Kept as a drawable so the home screen does not need a video player or network access.
  */
 @Composable
 private fun MinecraftOverworldShowcase(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    val videoResId = remember(context) {
-        context.resources.getIdentifier("oryn_cinematic", "raw", context.packageName)
-    }
-    var playbackError by remember { mutableStateOf(false) }
-    var appStarted by remember(lifecycleOwner) {
-        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED))
-    }
-
-    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-            when (event) {
-                androidx.lifecycle.Lifecycle.Event.ON_START -> appStarted = true
-                androidx.lifecycle.Lifecycle.Event.ON_STOP -> appStarted = false
-                else -> Unit
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    if (videoResId == 0) {
-        Box(modifier = modifier.background(Color(0xFF111418)), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("ORYN CINEMATIC", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(6.dp))
-                Text("Licensed video asset is not bundled yet", color = Color.White.copy(alpha = .62f), fontSize = 11.sp, textAlign = TextAlign.Center)
-            }
-        }
-        return
-    }
-
-    val player = androidx.compose.runtime.remember(context, videoResId) {
-        androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-            setMediaItem(androidx.media3.common.MediaItem.fromUri("android.resource://${context.packageName}/$videoResId"))
-            repeatMode = androidx.media3.common.Player.REPEAT_MODE_ONE
-            volume = 0f
-            prepare()
-        }
-    }
-
-    androidx.compose.runtime.DisposableEffect(player) {
-        val listener = object : androidx.media3.common.Player.Listener {
-            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                playbackError = true
-            }
-        }
-        player.addListener(listener)
-        onDispose {
-            player.removeListener(listener)
-            player.release()
-        }
-    }
-
-    LaunchedEffect(player, isVisible, appStarted, playbackError) {
-        if (isVisible && appStarted && !playbackError) {
-            player.playWhenReady = true
-            player.play()
-        } else {
-            player.pause()
-        }
-    }
-
-    Box(modifier = modifier.background(Color(0xFF111418))) {
-        if (!playbackError) {
-            androidx.compose.ui.viewinterop.AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { viewContext ->
-                    androidx.media3.ui.PlayerView(viewContext).apply {
-                        useController = false
-                        setShutterBackgroundColor(android.graphics.Color.rgb(17, 20, 24))
-                        this.player = player
-                    }
-                },
-                update = { it.player = player }
-            )
-        } else {
-            Text("Cinematic video unavailable", modifier = Modifier.align(Alignment.Center), color = Color.White.copy(alpha = .72f), fontSize = 12.sp)
-        }
-    }
+    Image(
+        painter = painterResource(id = R.drawable.oryn_cinematic_showcase),
+        contentDescription = "Oryn cinematic Minecraft landscape",
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF111418))
+    )
 }
 
 @Composable
