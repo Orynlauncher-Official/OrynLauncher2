@@ -528,19 +528,20 @@ private fun V5Home(
 
 
 /**
- * Animated, layered voxel-world panorama for the Play screen. The user-uploaded
- * reference is not bundled because redistribution permission has not been
- * established; this offline renderer instead uses parallax terrain, detailed
- * stepped ridgelines, forest depth, water, a village silhouette and biome
- * transitions. Animation only runs while both the screen and app are visible.
+ * Real, muted, looping cinematic playback. Place licensed footage at
+ * Orynlauncher/src/main/res/raw/oryn_cinematic.mp4. Never fake video with Canvas.
  */
 @Composable
 private fun MinecraftOverworldShowcase(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val progress = remember { Animatable(0f) }
+    val context = androidx.compose.ui.platform.LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val videoResId = remember(context) {
+        context.resources.getIdentifier("oryn_cinematic", "raw", context.packageName)
+    }
+    var playbackError by remember { mutableStateOf(false) }
     var appStarted by remember(lifecycleOwner) {
         mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED))
     }
@@ -557,213 +558,64 @@ private fun MinecraftOverworldShowcase(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(isVisible, appStarted) {
-        if (isVisible && appStarted) {
-            while (true) {
-                progress.animateTo(1f, animationSpec = tween(72000, easing = LinearEasing))
-                progress.snapTo(0f)
+    if (videoResId == 0) {
+        Box(modifier = modifier.background(Color(0xFF111418)), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("ORYN CINEMATIC", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(6.dp))
+                Text("Licensed video asset is not bundled yet", color = Color.White.copy(alpha = .62f), fontSize = 11.sp, textAlign = TextAlign.Center)
             }
-        } else {
-            progress.stop()
+        }
+        return
+    }
+
+    val player = androidx.compose.runtime.remember(context, videoResId) {
+        androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+            setMediaItem(androidx.media3.common.MediaItem.fromUri("android.resource://${context.packageName}/$videoResId"))
+            repeatMode = androidx.media3.common.Player.REPEAT_MODE_ONE
+            volume = 0f
+            prepare()
         }
     }
 
-    Canvas(modifier = modifier.background(Color(0xFF172A32))) {
-        val w = size.width
-        val h = size.height
-        val t = progress.value
-        val phase = t * 6f
-        val scene = phase.toInt().coerceIn(0, 5)
-        val blend = phase - scene
-        val smooth = blend * blend * (3f - 2f * blend)
-        val shift = (t * w * .32f) % w
-        val horizon = h * .64f
-
-        // Atmospheric sky, sunlight bloom, and distant haze.
-        drawRect(Brush.verticalGradient(
-            listOf(Color(0xFF243D53), Color(0xFF7196A3), Color(0xFFCAD0B5)),
-            startY = 0f, endY = h
-        ))
-        drawCircle(Color(0xFFFFE7B0).copy(alpha = .13f), h * .23f,
-            androidx.compose.ui.geometry.Offset(w * (.77f - t * .06f), h * .20f))
-        drawCircle(Color(0xFFFFE9B8).copy(alpha = .88f), h * .055f,
-            androidx.compose.ui.geometry.Offset(w * (.77f - t * .06f), h * .20f))
-        for (i in 0..5) {
-            val cw = w * (.10f + (i % 3) * .025f)
-            val x = ((i * .23f + t * (.11f + (i % 2) * .025f)) % 1.35f) * w - cw
-            val y = h * (.12f + (i % 3) * .075f)
-            val cloud = Color(0xFFDCE5DF).copy(alpha = .22f + (i % 2) * .08f)
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x, y), androidx.compose.ui.geometry.Size(cw, h * .018f))
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cw * .18f, y - h * .018f), androidx.compose.ui.geometry.Size(cw * .48f, h * .027f))
-            drawRect(cloud, androidx.compose.ui.geometry.Offset(x + cw * .58f, y - h * .008f), androidx.compose.ui.geometry.Size(cw * .25f, h * .018f))
-        }
-
-        // Three overlapping ridgelines provide depth and continuous parallax.
-        fun ridge(points: List<Pair<Float, Float>>, color: Color, offset: Float) {
-            val path = Path()
-            path.moveTo(0f, h)
-            path.lineTo(0f, points.first().second * h)
-            points.forEachIndexed { index, p ->
-                val x = (p.first * w - offset * (index % 2 + 1)) % (w * 1.3f)
-                path.lineTo(x, p.second * h)
-                path.lineTo((x + w * .035f), (p.second + .018f) * h)
-            }
-            path.lineTo(w, h)
-            path.close()
-            drawPath(path, color)
-        }
-        ridge(listOf(.00f to .57f, .10f to .43f, .17f to .48f, .28f to .31f, .36f to .43f,
-            .48f to .25f, .58f to .45f, .71f to .32f, .81f to .46f, .91f to .36f, 1.0f to .48f),
-            Color(0xFF647D83).copy(alpha = .75f), shift * .18f)
-        ridge(listOf(.00f to .66f, .12f to .53f, .23f to .60f, .34f to .46f, .46f to .61f,
-            .58f to .49f, .71f to .62f, .83f to .48f, 1.0f to .61f),
-            Color(0xFF405D56), shift * .35f)
-
-        // Distant snow facets are intentionally small and tied to the mountain scene.
-        if (scene == 3 || scene == 2) {
-            val snow = Color(0xFFE1E6D9).copy(alpha = if (scene == 3) .95f else .35f)
-            listOf(
-                listOf(.255f to .36f, .28f to .31f, .305f to .365f, .285f to .35f),
-                listOf(.45f to .31f, .48f to .25f, .51f to .32f, .48f to .30f),
-                listOf(.68f to .38f, .71f to .32f, .735f to .39f, .71f to .37f)
-            ).forEach { pts ->
-                val p = Path().apply {
-                    moveTo(pts[0].first * w, pts[0].second * h)
-                    for (j in 1 until pts.size) lineTo(pts[j].first * w, pts[j].second * h)
-                    close()
-                }
-                drawPath(p, snow)
+    androidx.compose.runtime.DisposableEffect(player) {
+        val listener = object : androidx.media3.common.Player.Listener {
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                playbackError = true
             }
         }
-
-        // Layered foothills with stepped grass and exposed earth faces.
-        drawRect(Color(0xFF2B493B), androidx.compose.ui.geometry.Offset(0f, horizon), androidx.compose.ui.geometry.Size(w, h - horizon))
-        for (layer in 0..2) {
-            val base = h * (.66f + layer * .085f)
-            val bw = w / (25f - layer * 4f)
-            val movement = shift * (0.48f + layer * .22f)
-            for (i in -2..28) {
-                val x = ((i * bw + movement) % (w + bw * 2)) - bw
-                val n = ((i * 17 + layer * 11) % 7 + 7) % 7
-                val top = base + n * h * .006f
-                val grass = when (scene) {
-                    1 -> Color(0xFF7D9550)
-                    4 -> Color(0xFF536D43)
-                    else -> Color(0xFF527B49)
-                }
-                drawRect(grass.copy(alpha = .82f - layer * .12f),
-                    androidx.compose.ui.geometry.Offset(x, top),
-                    androidx.compose.ui.geometry.Size(bw + 1f, h * .035f))
-                drawRect(Color(0xFF5C4938).copy(alpha = .88f),
-                    androidx.compose.ui.geometry.Offset(x, top + h * .035f),
-                    androidx.compose.ui.geometry.Size(bw + 1f, h * (.055f + layer * .012f)))
-                drawRect(Color(0xFF283D32).copy(alpha = .48f),
-                    androidx.compose.ui.geometry.Offset(x + bw * .6f, top + h * .035f),
-                    androidx.compose.ui.geometry.Size(bw * .4f, h * .055f))
-            }
+        player.addListener(listener)
+        onDispose {
+            player.removeListener(listener)
+            player.release()
         }
+    }
 
-        // Water scene: broad lake with a stepped shoreline and moving highlights.
-        val waterAlpha = when (scene) { 2 -> 1f; 1, 3 -> .32f + smooth * .25f; else -> .10f }
-        val lake = Path().apply {
-            moveTo(w * .35f, h); lineTo(w * .90f, h)
-            lineTo(w * .83f, h * .82f); lineTo(w * .70f, h * .77f)
-            lineTo(w * .66f, h * .72f); lineTo(w * .52f, h * .75f)
-            lineTo(w * .47f, h * .82f); lineTo(w * .39f, h * .86f); close()
+    LaunchedEffect(player, isVisible, appStarted, playbackError) {
+        if (isVisible && appStarted && !playbackError) {
+            player.playWhenReady = true
+            player.play()
+        } else {
+            player.pause()
         }
-        drawPath(lake, Color(0xFF2F8297).copy(alpha = waterAlpha))
-        drawPath(lake, Brush.verticalGradient(
-            listOf(Color(0xFF77C2C7).copy(alpha = waterAlpha * .55f), Color(0xFF174C68).copy(alpha = waterAlpha)),
-            startY = h * .72f, endY = h
-        ))
-        for (i in 0..9) {
-            val x = ((i * .117f + t * .08f) % .95f) * w
-            val y = h * (.79f + (i % 4) * .032f)
-            drawRect(Color(0xFFB3E0D5).copy(alpha = waterAlpha * .55f),
-                androidx.compose.ui.geometry.Offset(x, y),
-                androidx.compose.ui.geometry.Size(w * (.025f + (i % 3) * .012f), h * .006f))
-        }
+    }
 
-        // Forest layers: varied trunks, stepped crowns, highlights and shadows.
-        val forestDensity = when (scene) { 0, 4, 5 -> 1f; 2 -> .42f; else -> .68f }
-        for (layer in 0..1) {
-            val count = if (layer == 0) 22 else 15
-            val step = w / count
-            for (i in 0 until count) {
-                val rawX = i * step + ((i * 19) % 13) * w * .003f
-                val x = (rawX + shift * (if (layer == 0) .7f else .38f)) % (w + step) - step * .5f
-                val depth = .55f + ((i * 7 + layer * 3) % 6) * .075f
-                val baseY = h * (.78f + (i % 4) * .025f)
-                val trunkW = step * (.12f + (i % 3) * .025f) * depth
-                val trunkH = h * (.11f + (i % 4) * .012f) * depth
-                val canopyW = step * (.72f + (i % 3) * .20f) * depth
-                val canopyH = h * (.13f + (i % 3) * .018f) * depth
-                val cherry = scene == 4
-                val leaves = when {
-                    cherry -> Color(0xFFC47DA0)
-                    scene == 1 -> Color(0xFF73934B)
-                    layer == 0 -> Color(0xFF254B37)
-                    else -> Color(0xFF356548)
-                }
-                val a = forestDensity * (if (layer == 0) .96f else .65f)
-                drawRect(Color(0xFF493A2D).copy(alpha = a),
-                    androidx.compose.ui.geometry.Offset(x, baseY - trunkH),
-                    androidx.compose.ui.geometry.Size(trunkW, trunkH))
-                drawRect(leaves.copy(alpha = a),
-                    androidx.compose.ui.geometry.Offset(x - canopyW * .34f, baseY - trunkH - canopyH * .65f),
-                    androidx.compose.ui.geometry.Size(canopyW, canopyH * .70f))
-                drawRect(leaves.copy(alpha = a * .95f),
-                    androidx.compose.ui.geometry.Offset(x - canopyW * .17f, baseY - trunkH - canopyH),
-                    androidx.compose.ui.geometry.Size(canopyW * .68f, canopyH * .62f))
-                drawRect(leaves.copy(alpha = a * .8f),
-                    androidx.compose.ui.geometry.Offset(x - canopyW * .45f, baseY - trunkH - canopyH * .38f),
-                    androidx.compose.ui.geometry.Size(canopyW * .30f, canopyH * .43f))
-                // Lit leaf faces give the canopies block volume rather than flat silhouettes.
-                drawRect(Color(0xFF9BB875).copy(alpha = a * .23f),
-                    androidx.compose.ui.geometry.Offset(x - canopyW * .06f, baseY - trunkH - canopyH * .90f),
-                    androidx.compose.ui.geometry.Size(canopyW * .42f, canopyH * .13f))
-                if (cherry && i % 3 == 0) {
-                    drawRect(Color(0xFFFFD9E8).copy(alpha = a * .8f),
-                        androidx.compose.ui.geometry.Offset(x + canopyW * .12f, baseY - trunkH - canopyH * .54f),
-                        androidx.compose.ui.geometry.Size(canopyW * .13f, canopyH * .10f))
-                }
-            }
+    Box(modifier = modifier.background(Color(0xFF111418))) {
+        if (!playbackError) {
+            androidx.compose.ui.viewinterop.AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { viewContext ->
+                    androidx.media3.ui.PlayerView(viewContext).apply {
+                        useController = false
+                        setShutterBackgroundColor(android.graphics.Color.rgb(17, 20, 24))
+                        player = this@remember
+                    }
+                },
+                update = { it.player = player }
+            )
+        } else {
+            Text("Cinematic video unavailable", modifier = Modifier.align(Alignment.Center), color = Color.White.copy(alpha = .72f), fontSize = 12.sp)
         }
-
-        // Tiny medieval village silhouette appears on the plains/mountain approach.
-        val villageAlpha = when (scene) { 1 -> 1f; 2, 3 -> .48f; else -> .12f }
-        for (i in 0..4) {
-            val x = w * (.40f + i * .075f) - shift * .18f
-            val y = h * (.72f + (i % 2) * .025f)
-            val houseW = w * (.035f + (i % 2) * .012f)
-            drawRect(Color(0xFF5B5144).copy(alpha = villageAlpha),
-                androidx.compose.ui.geometry.Offset(x, y - h * .075f),
-                androidx.compose.ui.geometry.Size(houseW, h * .075f))
-            val roof = Path().apply {
-                moveTo(x - houseW * .12f, y - h * .075f)
-                lineTo(x + houseW * .5f, y - h * .12f)
-                lineTo(x + houseW * 1.12f, y - h * .075f)
-                close()
-            }
-            drawPath(roof, Color(0xFF403A35).copy(alpha = villageAlpha))
-            drawRect(Color(0xFFD8B879).copy(alpha = villageAlpha * .8f),
-                androidx.compose.ui.geometry.Offset(x + houseW * .38f, y - h * .035f),
-                androidx.compose.ui.geometry.Size(houseW * .15f, h * .035f))
-        }
-
-        // Cinematic foreground vignette and horizon mist.
-        drawRect(Brush.verticalGradient(
-            listOf(Color.Transparent, Color(0xFF142820).copy(alpha = .25f), Color(0xFF0D1C1B).copy(alpha = .68f)),
-            startY = h * .48f, endY = h
-        ))
-        drawRect(Brush.horizontalGradient(
-            listOf(Color(0xFF08151C).copy(alpha = .28f), Color.Transparent,
-                Color.Transparent, Color(0xFF08151C).copy(alpha = .30f))
-        ))
-        drawRect(Brush.verticalGradient(
-            listOf(Color.Transparent, Color(0xFFC6D9D0).copy(alpha = .16f)),
-            startY = h * .48f, endY = h * .73f
-        ))
     }
 }
 
