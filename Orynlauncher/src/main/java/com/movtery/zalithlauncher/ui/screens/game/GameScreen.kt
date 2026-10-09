@@ -508,9 +508,9 @@ fun GameScreen(
     gamepadViewModel: GamepadViewModel,
 ) {
     val context = LocalContext.current
-    DisposableEffect(version.name, AllSettings.discordRichPresence.state) {
+    DisposableEffect(version.getVersionName(), AllSettings.discordRichPresence.state) {
         val presence = if (AllSettings.discordRichPresence.state) OrynDiscordPresence(context) else null
-        presence?.start(version.name)
+        presence?.start(version.getVersionName())
         onDispose { presence?.stop() }
     }
     val viewModel = rememberGameViewModel(version) { mode ->
