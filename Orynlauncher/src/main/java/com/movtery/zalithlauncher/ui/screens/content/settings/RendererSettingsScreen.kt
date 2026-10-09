@@ -582,22 +582,18 @@ private fun RunBenchmarkPill(
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val gradient = remember(colorScheme) {
-        Brush.horizontalGradient(
-            listOf(Color(0xFF202631), Color(0xFF202631))
-        )
-    }
+    val buttonBackground = Color(0xFF252B36)
 
     Surface(
         modifier = modifier,
-        shape = CircleShape,
-        color = Color.Transparent,
+        shape = RoundedCornerShape(18.dp),
+        color = buttonBackground,
         shadowElevation = 0.dp,
         onClick = onClick
     ) {
         Row(
             modifier = Modifier
-                .background(brush = gradient, shape = CircleShape)
+                .background(color = buttonBackground, shape = RoundedCornerShape(18.dp))
                 .padding(horizontal = 20.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
