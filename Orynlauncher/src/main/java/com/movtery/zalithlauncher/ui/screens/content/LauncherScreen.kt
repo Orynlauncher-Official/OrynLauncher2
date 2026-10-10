@@ -635,6 +635,37 @@ private fun MinecraftOverworldShowcase(
             drawRect(Color(0xFFFFD98C),androidx.compose.ui.geometry.Offset(w*.215f,h*.655f),Size(w*.018f,h*.025f))
             drawRect(Color(0xFFFFD98C),androidx.compose.ui.geometry.Offset(w*.273f,h*.655f),Size(w*.018f,h*.025f))
             drawRect(Color(0xFF302A31),androidx.compose.ui.geometry.Offset(w*.244f,h*.68f),Size(w*.022f,h*.045f))
+            // Faceted mountain shadows and block-like stone highlights.
+            val mountainShadow = Path().apply {
+                moveTo(w*.36f,h*.19f); lineTo(w*.41f,h*.31f); lineTo(w*.47f,h*.28f)
+                lineTo(w*.56f,h*.48f); lineTo(w*.43f,h*.42f); lineTo(w*.36f,h*.19f); close()
+            }
+            drawPath(mountainShadow,Color(0xFF463A61))
+            val secondRidge = Path().apply {
+                moveTo(w*.65f,h*.37f); lineTo(w*.75f,h*.55f); lineTo(w*.69f,h*.51f)
+                lineTo(w*.65f,h*.37f); close()
+            }
+            drawPath(secondRidge,Color(0xFF493D63))
+            // Grass blocks, moss patches and tiny flowers add terrain texture.
+            for (i in 0..34) {
+                val side = if (i % 2 == 0) 1f else -1f
+                val x = if (side > 0) w*(.015f+(i%7)*.035f) else w*(.80f+(i%6)*.032f)
+                val y = h*(.76f+(i%6)*.038f)
+                val patchW = w*(.012f+(i%3)*.006f)
+                drawRect(if(i%3==0) Color(0xFF78905A) else Color(0xFF3E5B40),
+                    androidx.compose.ui.geometry.Offset(x,y),Size(patchW,h*.012f))
+                if (i%5==0) {
+                    drawRect(Color(0xFFFFD4E7),androidx.compose.ui.geometry.Offset(x+patchW*.35f,y-h*.018f),Size(h*.009f,h*.009f))
+                    drawRect(Color(0xFF6E8B52),androidx.compose.ui.geometry.Offset(x+patchW*.55f,y-h*.009f),Size(h*.004f,h*.015f))
+                }
+            }
+            // A few square stepping stones at the river's edge.
+            for (i in 0..5) {
+                val y=h*(.77f+i*.035f)
+                val stoneW=w*(.035f+i*.006f)
+                drawRect(Color(0xFF8C9291),androidx.compose.ui.geometry.Offset(w*.40f-stoneW/2,y),Size(stoneW,h*.012f))
+                drawRect(Color(0xFFB2B5AE),androidx.compose.ui.geometry.Offset(w*.40f-stoneW/2,y),Size(stoneW,h*.003f))
+            }
             // Subtle stars and drifting blossom petals.
             for (i in 0..13) {
                 val x=((i*.173f)%1f)*w
