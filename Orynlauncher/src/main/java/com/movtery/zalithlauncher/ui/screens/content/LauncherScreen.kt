@@ -540,8 +540,8 @@ private fun MinecraftOverworldShowcase(
     LaunchedEffect(isVisible) {
         if (isVisible) {
             while (isActive) {
-                floatMotion.animateTo(1f, tween(1800, easing = LinearEasing))
-                floatMotion.animateTo(0f, tween(1800, easing = LinearEasing))
+                floatMotion.animateTo(1f, tween(2600, easing = LinearEasing))
+                floatMotion.animateTo(0f, tween(2600, easing = LinearEasing))
             }
         } else {
             floatMotion.snapTo(0f)
@@ -551,83 +551,96 @@ private fun MinecraftOverworldShowcase(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(Color(0xFF101A26), Color(0xFF182D3C), Color(0xFF0B111A))
-                )
-            ),
+            .background(Color(0xFF30243F)),
         contentAlignment = Alignment.Center
     ) {
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
-            // Soft cyan glow behind the block.
+            val drift = floatMotion.value * h * 0.018f
+            // Sunset sky and warm horizon glow.
+            drawRect(Brush.verticalGradient(
+                colors = listOf(Color(0xFF8A82C6), Color(0xFFF3A7B7), Color(0xFFFFD19A)),
+                startY = 0f, endY = h * 0.78f
+            ))
             drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color(0x6648DDF5), Color(0x2248DDF5), Color.Transparent),
-                    center = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.48f),
-                    radius = h * 0.62f
-                ),
-                radius = h * 0.62f,
-                center = androidx.compose.ui.geometry.Offset(w * 0.5f, h * 0.48f)
+                brush = Brush.radialGradient(listOf(Color(0xFFFFF0B3), Color(0x66FFD48D), Color.Transparent)),
+                radius = h * 0.43f,
+                center = androidx.compose.ui.geometry.Offset(w * 0.77f, h * 0.43f)
             )
-
-            // Floating isometric diamond block, drawn directly with Compose Canvas.
-            val unit = h * 0.30f
-            val cx = w * 0.5f
-            val cy = h * 0.47f - floatMotion.value * h * 0.035f
-            val top = androidx.compose.ui.geometry.Offset(cx, cy - unit * 0.78f)
-            val left = androidx.compose.ui.geometry.Offset(cx - unit, cy - unit * 0.20f)
-            val right = androidx.compose.ui.geometry.Offset(cx + unit, cy - unit * 0.20f)
-            val mid = androidx.compose.ui.geometry.Offset(cx, cy + unit * 0.35f)
-            val bottomLeft = androidx.compose.ui.geometry.Offset(cx - unit, cy + unit * 0.92f)
-            val bottomRight = androidx.compose.ui.geometry.Offset(cx + unit, cy + unit * 0.92f)
-            val bottom = androidx.compose.ui.geometry.Offset(cx, cy + unit * 1.50f)
-
-            val topFace = Path().apply {
-                moveTo(top.x, top.y); lineTo(right.x, right.y); lineTo(mid.x, mid.y); lineTo(left.x, left.y); close()
+            drawCircle(Color(0xFFFFE5A0), radius = h * 0.105f,
+                center = androidx.compose.ui.geometry.Offset(w * 0.77f, h * 0.43f))
+            // Distant blocky mountain range.
+            val far = Path().apply {
+                moveTo(0f, h * .63f); lineTo(w*.13f,h*.43f); lineTo(w*.22f,h*.51f)
+                lineTo(w*.38f,h*.25f); lineTo(w*.49f,h*.48f); lineTo(w*.59f,h*.34f)
+                lineTo(w*.72f,h*.57f); lineTo(w*.88f,h*.39f); lineTo(w,h*.54f)
+                lineTo(w,h); lineTo(0f,h); close()
             }
-            val leftFace = Path().apply {
-                moveTo(left.x, left.y); lineTo(mid.x, mid.y); lineTo(bottom.x, bottom.y); lineTo(bottomLeft.x, bottomLeft.y); close()
+            drawPath(far, Color(0xFF67547F))
+            val near = Path().apply {
+                moveTo(0f,h*.72f); lineTo(w*.16f,h*.58f); lineTo(w*.29f,h*.66f)
+                lineTo(w*.43f,h*.49f); lineTo(w*.57f,h*.67f); lineTo(w*.71f,h*.57f)
+                lineTo(w*.86f,h*.67f); lineTo(w,h*.58f); lineTo(w,h); lineTo(0f,h); close()
             }
-            val rightFace = Path().apply {
-                moveTo(mid.x, mid.y); lineTo(right.x, right.y); lineTo(bottomRight.x, bottomRight.y); lineTo(bottom.x, bottom.y); close()
+            drawPath(near, Color(0xFF384D4A))
+            // Reflective river through the valley.
+            val river = Path().apply {
+                moveTo(w*.43f,h*.64f); lineTo(w*.62f,h*.64f); lineTo(w*.77f,h)
+                lineTo(w*.27f,h); close()
             }
-            drawPath(topFace, Brush.linearGradient(listOf(Color(0xFFE5FFFF), Color(0xFF54DDEB), Color(0xFF1697C6)), start = top, end = mid))
-            drawPath(leftFace, Brush.linearGradient(listOf(Color(0xFF39CDE1), Color(0xFF0873A8)), start = left, end = bottom))
-            drawPath(rightFace, Brush.linearGradient(listOf(Color(0xFF168DBD), Color(0xFF06466F)), start = right, end = bottom))
-
-            // Pixel-like facets make the object read as a Minecraft block.
-            val facet = Path().apply {
-                moveTo(cx - unit * 0.62f, cy - unit * 0.20f)
-                lineTo(cx - unit * 0.12f, cy + unit * 0.05f)
-                lineTo(cx - unit * 0.12f, cy + unit * 0.42f)
-                lineTo(cx - unit * 0.62f, cy + unit * 0.12f)
-                close()
+            drawPath(river, Brush.verticalGradient(
+                listOf(Color(0xFF8E829F), Color(0xFF526D7D), Color(0xFF233F50)),
+                startY=h*.62f, endY=h
+            ))
+            for (i in 0..7) {
+                val yy = h * (.72f + i * .035f)
+                val half = w * (.035f + i * .018f)
+                drawLine(Color(0xFFFFD8B0).copy(alpha=.48f-i*.035f),
+                    androidx.compose.ui.geometry.Offset(w*.53f-half,yy),
+                    androidx.compose.ui.geometry.Offset(w*.53f+half,yy),
+                    strokeWidth=(1.5f+i*.25f).dp.toPx())
             }
-            drawPath(facet, Color(0x553DFFFF))
-            drawPath(topFace, Color.White.copy(alpha = 0.65f), style = Stroke(width = 2.dp.toPx()))
-            drawPath(leftFace, Color(0xFF7DEEFF), style = Stroke(width = 1.5.dp.toPx()))
-            drawPath(rightFace, Color(0xFF3AB9E6), style = Stroke(width = 1.5.dp.toPx()))
-
-            // Small floating pixel sparks.
-            listOf(
-                androidx.compose.ui.geometry.Offset(cx - unit * 1.45f, cy - unit * 0.65f),
-                androidx.compose.ui.geometry.Offset(cx + unit * 1.38f, cy - unit * 0.10f),
-                androidx.compose.ui.geometry.Offset(cx + unit * 0.95f, cy - unit * 1.10f)
-            ).forEachIndexed { index, point ->
-                val r = (if (index == 1) 4f else 3f) * density
-                drawRect(Color(0xFF8AF1FF).copy(alpha = 0.65f), topLeft = androidx.compose.ui.geometry.Offset(point.x - r / 2, point.y - r / 2), size = Size(r, r))
+            // Pixelated grass banks.
+            drawRect(Color(0xFF48684A), topLeft=androidx.compose.ui.geometry.Offset(0f,h*.72f), size=Size(w*.34f,h*.28f))
+            drawRect(Color(0xFF59734B), topLeft=androidx.compose.ui.geometry.Offset(w*.78f,h*.70f), size=Size(w*.22f,h*.30f))
+            // Cherry trees: stepped canopies and dark block trunks.
+            fun tree(x: Float, y: Float, scale: Float) {
+                val trunkW=h*.025f*scale
+                drawRect(Color(0xFF49333A), topLeft=androidx.compose.ui.geometry.Offset(x-trunkW/2,y), size=Size(trunkW,h*.25f*scale))
+                val colors=listOf(Color(0xFFB95F91),Color(0xFFE78CB7),Color(0xFFFFB7D2),Color(0xFFD977A8))
+                val blocks=listOf(
+                    Triple(-.09f,-.10f,.12f), Triple(-.16f,-.04f,.12f),
+                    Triple(-.04f,-.18f,.13f), Triple(.06f,-.12f,.13f),
+                    Triple(.13f,-.05f,.11f), Triple(.00f,.00f,.13f),
+                    Triple(-.12f,.02f,.10f), Triple(.09f,.03f,.10f)
+                )
+                blocks.forEachIndexed { index, b ->
+                    val bw=h*b.third*scale
+                    drawRect(colors[index%colors.size],
+                        topLeft=androidx.compose.ui.geometry.Offset(x+h*b.first*scale-bw/2,y+h*b.second*scale-bw/2),
+                        size=Size(bw,bw*.78f))
+                }
+            }
+            tree(w*.08f,h*.48f,1.45f)
+            tree(w*.22f,h*.61f,.85f)
+            tree(w*.91f,h*.48f,1.25f)
+            tree(w*.82f,h*.62f,.72f)
+            // Small lantern-lit cottage on the left bank.
+            drawRect(Color(0xFF49363A), topLeft=androidx.compose.ui.geometry.Offset(w*.19f,h*.61f), size=Size(w*.12f,h*.10f))
+            val roof=Path().apply { moveTo(w*.17f,h*.62f); lineTo(w*.25f,h*.54f); lineTo(w*.33f,h*.62f); close() }
+            drawPath(roof,Color(0xFF5A3B4A))
+            drawRect(Color(0xFFFFD58B),topLeft=androidx.compose.ui.geometry.Offset(w*.215f,h*.65f),size=Size(w*.018f,h*.025f))
+            drawRect(Color(0xFFFFD58B),topLeft=androidx.compose.ui.geometry.Offset(w*.27f,h*.65f),size=Size(w*.018f,h*.025f))
+            // Drifting petals add gentle motion without a video or heavy asset.
+            for (i in 0..17) {
+                val x=((i*.173f+floatMotion.value*.055f)%1f)*w
+                val y=((i*.137f+floatMotion.value*.11f)%1f)*h*.76f
+                drawRect(Color(0xFFFFC3DC).copy(alpha=.82f),
+                    topLeft=androidx.compose.ui.geometry.Offset(x,y),
+                    size=Size(h*.012f,h*.009f))
             }
         }
-        Text(
-            text = "DIAMOND BLOCK",
-            color = Color.White.copy(alpha = 0.82f),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 3.sp,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp)
-        )
     }
 }
 
