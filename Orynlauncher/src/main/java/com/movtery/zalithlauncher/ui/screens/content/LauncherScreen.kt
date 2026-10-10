@@ -548,7 +548,6 @@ private fun MinecraftOverworldShowcase(
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
-            val o = androidx.compose.ui.geometry.Offset
             // Layered dusk sky and a soft sunset halo.
             drawRect(Brush.verticalGradient(
                 listOf(Color(0xFF746EAA), Color(0xFFDC91B4), Color(0xFFFFC68F), Color(0xFF7C687B)),
@@ -556,9 +555,9 @@ private fun MinecraftOverworldShowcase(
             ))
             drawCircle(Brush.radialGradient(
                 listOf(Color(0xFFFFE8AD), Color(0x66FFD19B), Color.Transparent),
-                center = o(w*.77f,h*.40f), radius = h*.42f
-            ), h*.42f, o(w*.77f,h*.40f))
-            drawCircle(Color(0xFFFFE6A0), h*.075f, o(w*.77f,h*.40f))
+                center = androidx.compose.ui.geometry.Offset(w*.77f,h*.40f), radius = h*.42f
+            ), h*.42f, androidx.compose.ui.geometry.Offset(w*.77f,h*.40f))
+            drawCircle(Color(0xFFFFE6A0), h*.075f, androidx.compose.ui.geometry.Offset(w*.77f,h*.40f))
             // Jagged, snow-tipped distant peaks with shaded faces.
             val peaks = Path().apply {
                 moveTo(0f,h*.64f); lineTo(w*.10f,h*.48f); lineTo(w*.18f,h*.53f)
@@ -591,24 +590,24 @@ private fun MinecraftOverworldShowcase(
                 val yy=h*(.69f+i*.022f)
                 val half=w*(.018f+i*.012f)
                 drawLine(Color(0xFFFFD9B0).copy(alpha=.62f-i*.032f),
-                    o(w*.52f-half,yy),o(w*.52f+half,yy),
+                    androidx.compose.ui.geometry.Offset(w*.52f-half,yy),androidx.compose.ui.geometry.Offset(w*.52f+half,yy),
                     strokeWidth=(1f+i*.12f).dp.toPx())
             }
             // Blocky grassy banks and stepped shore.
-            drawRect(Color(0xFF4B6846),o(0f,h*.73f),Size(w*.31f,h*.27f))
-            drawRect(Color(0xFF526F49),o(w*.79f,h*.70f),Size(w*.21f,h*.30f))
+            drawRect(Color(0xFF4B6846),androidx.compose.ui.geometry.Offset(0f,h*.73f),Size(w*.31f,h*.27f))
+            drawRect(Color(0xFF526F49),androidx.compose.ui.geometry.Offset(w*.79f,h*.70f),Size(w*.21f,h*.30f))
             for (i in 0..5) {
                 val bw=w*(.035f-i*.003f)
                 drawRect(if(i%2==0) Color(0xFF668052) else Color(0xFF405D42),
-                    o(w*(.03f+i*.035f),h*(.75f+i*.035f)),Size(bw,h*.025f))
+                    androidx.compose.ui.geometry.Offset(w*(.03f+i*.035f),h*(.75f+i*.035f)),Size(bw,h*.025f))
                 drawRect(if(i%2==0) Color(0xFF668052) else Color(0xFF405D42),
-                    o(w*(.82f+i*.026f),h*(.74f+i*.032f)),Size(bw,h*.024f))
+                    androidx.compose.ui.geometry.Offset(w*(.82f+i*.026f),h*(.74f+i*.032f)),Size(bw,h*.024f))
             }
             // Layered cherry canopies, shaded undersides and squared trunks.
             fun tree(x: Float, y: Float, scale: Float) {
                 val trunkW=h*.019f*scale
-                drawRect(Color(0xFF493139),o(x-trunkW/2,y),Size(trunkW,h*.24f*scale))
-                drawRect(Color(0xFF74505A),o(x-trunkW*.12f,y),Size(trunkW*.24f,h*.20f*scale))
+                drawRect(Color(0xFF493139),androidx.compose.ui.geometry.Offset(x-trunkW/2,y),Size(trunkW,h*.24f*scale))
+                drawRect(Color(0xFF74505A),androidx.compose.ui.geometry.Offset(x-trunkW*.12f,y),Size(trunkW*.24f,h*.20f*scale))
                 val blocks=listOf(
                     Triple(-.12f,-.10f,.15f),Triple(-.04f,-.19f,.14f),Triple(.07f,-.14f,.16f),
                     Triple(.15f,-.06f,.13f),Triple(-.18f,-.03f,.12f),Triple(-.09f,.01f,.14f),
@@ -618,8 +617,8 @@ private fun MinecraftOverworldShowcase(
                 val shades=listOf(Color(0xFFB95F91),Color(0xFFE78CB7),Color(0xFFFFB9D5),Color(0xFFD979A9),Color(0xFFEA91BC))
                 blocks.forEachIndexed { index,b ->
                     val bw=h*b.third*scale
-                    drawRect(Color(0xFF985078),o(x+h*b.first*scale-bw/2+2f,y+h*b.second*scale-bw/2+2f),Size(bw,bw*.76f))
-                    drawRect(shades[index%shades.size],o(x+h*b.first*scale-bw/2,y+h*b.second*scale-bw/2),Size(bw,bw*.72f))
+                    drawRect(Color(0xFF985078),androidx.compose.ui.geometry.Offset(x+h*b.first*scale-bw/2+2f,y+h*b.second*scale-bw/2+2f),Size(bw,bw*.76f))
+                    drawRect(shades[index%shades.size],androidx.compose.ui.geometry.Offset(x+h*b.first*scale-bw/2,y+h*b.second*scale-bw/2),Size(bw,bw*.72f))
                 }
             }
             tree(w*.06f,h*.47f,1.35f)
@@ -628,25 +627,25 @@ private fun MinecraftOverworldShowcase(
             tree(w*.83f,h*.61f,.78f)
             tree(w*.37f,h*.67f,.45f)
             // Timber cottage with gabled roof, lit windows, and warm lantern glow.
-            drawCircle(Color(0x55FFB95F),h*.095f,o(w*.265f,h*.68f))
-            drawRect(Color(0xFF49363A),o(w*.19f,h*.62f),Size(w*.13f,h*.105f))
+            drawCircle(Color(0x55FFB95F),h*.095f,androidx.compose.ui.geometry.Offset(w*.265f,h*.68f))
+            drawRect(Color(0xFF49363A),androidx.compose.ui.geometry.Offset(w*.19f,h*.62f),Size(w*.13f,h*.105f))
             val roof=Path().apply { moveTo(w*.17f,h*.63f);lineTo(w*.255f,h*.545f);lineTo(w*.34f,h*.63f);close() }
             drawPath(roof,Color(0xFF49303C))
-            drawRect(Color(0xFF72505A),o(w*.195f,h*.62f),Size(w*.12f,h*.014f))
-            drawRect(Color(0xFFFFD98C),o(w*.215f,h*.655f),Size(w*.018f,h*.025f))
-            drawRect(Color(0xFFFFD98C),o(w*.273f,h*.655f),Size(w*.018f,h*.025f))
-            drawRect(Color(0xFF302A31),o(w*.244f,h*.68f),Size(w*.022f,h*.045f))
+            drawRect(Color(0xFF72505A),androidx.compose.ui.geometry.Offset(w*.195f,h*.62f),Size(w*.12f,h*.014f))
+            drawRect(Color(0xFFFFD98C),androidx.compose.ui.geometry.Offset(w*.215f,h*.655f),Size(w*.018f,h*.025f))
+            drawRect(Color(0xFFFFD98C),androidx.compose.ui.geometry.Offset(w*.273f,h*.655f),Size(w*.018f,h*.025f))
+            drawRect(Color(0xFF302A31),androidx.compose.ui.geometry.Offset(w*.244f,h*.68f),Size(w*.022f,h*.045f))
             // Subtle stars and drifting blossom petals.
             for (i in 0..13) {
                 val x=((i*.173f)%1f)*w
                 val y=((i*.119f)%1f)*h*.27f
-                drawCircle(Color.White.copy(alpha=.35f),h*.003f,o(x,y))
+                drawCircle(Color.White.copy(alpha=.35f),h*.003f,androidx.compose.ui.geometry.Offset(x,y))
             }
             for (i in 0..22) {
                 val x=((i*.173f+floatMotion.value*.07f)%1f)*w
                 val y=((i*.137f+floatMotion.value*.10f)%1f)*h*.78f
                 drawRect(Color(0xFFFFC3DC).copy(alpha=.82f),
-                    o(x,y),Size(h*.012f,h*.008f))
+                    androidx.compose.ui.geometry.Offset(x,y),Size(h*.012f,h*.008f))
             }
         }
     }
