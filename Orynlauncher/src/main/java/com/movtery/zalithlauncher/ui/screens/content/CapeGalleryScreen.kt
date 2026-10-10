@@ -111,6 +111,7 @@ fun CapeGalleryScreen(
         }
         scope.launch(Dispatchers.IO) {
             var temp: File? = null
+            var submittedToAccountManager = false
             try {
                 val input = context.contentResolver.openInputStream(uri)
                     ?: throw IllegalArgumentException("Unable to open selected PNG")
@@ -120,9 +121,11 @@ fun CapeGalleryScreen(
                     if (!validateSkinFile(temp!!)) throw IllegalArgumentException("Invalid skin PNG. Use 64x64 or legacy 64x32.")
                     val model = if (temp!!.isSlimModel()) SkinModelType.ALEX else SkinModelType.STEVE
                     accountManageViewModel.onIntent(AccountManageIntent.ApplySkin(targetAccount, temp!!, model))
+                    submittedToAccountManager = true
                 } else {
                     if (!validateCapeFile(temp!!)) throw IllegalArgumentException("Invalid cape texture PNG.")
                     accountManageViewModel.onIntent(AccountManageIntent.ApplyCustomCape(targetAccount, temp!!))
+                    submittedToAccountManager = true
                 }
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, if (isSkin) "Skin import submitted." else "Cape imported and applied locally.", Toast.LENGTH_LONG).show()
@@ -132,7 +135,7 @@ fun CapeGalleryScreen(
                     Toast.makeText(context, e.message ?: "Import failed", Toast.LENGTH_LONG).show()
                 }
             } finally {
-                temp?.delete()
+                if (!submittedToAccountManager) temp?.delete()
             }
         }
     }
