@@ -101,7 +101,7 @@ fun CapeGalleryScreen(
     val scope = rememberCoroutineScope()
     val accountManageViewModel: AccountManageViewModel = hiltViewModel()
     val accounts by AccountsManager.accountsFlow.collectAsStateWithLifecycle()
-    val account = accounts.firstOrNull { it.uuid.toString().equals(key.accountUUID, ignoreCase = true) }
+    val account = accounts.firstOrNull { it.uniqueUUID.equals(key.accountUUID, ignoreCase = true) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     fun importTexture(uri: Uri, isSkin: Boolean) {
