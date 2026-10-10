@@ -538,107 +538,115 @@ private fun MinecraftOverworldShowcase(
 ) {
     val floatMotion = remember { Animatable(0f) }
     LaunchedEffect(isVisible) {
-        if (isVisible) {
-            while (isActive) {
-                floatMotion.animateTo(1f, tween(2600, easing = LinearEasing))
-                floatMotion.animateTo(0f, tween(2600, easing = LinearEasing))
-            }
-        } else {
-            floatMotion.snapTo(0f)
-        }
+        if (isVisible) while (isActive) {
+            floatMotion.animateTo(1f, tween(3200, easing = LinearEasing))
+            floatMotion.animateTo(0f, tween(3200, easing = LinearEasing))
+        } else floatMotion.snapTo(0f)
     }
 
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xFF30243F)),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = modifier.clip(RoundedCornerShape(18.dp)).background(Color(0xFF27313C))) {
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
-            val drift = floatMotion.value * h * 0.018f
-            // Sunset sky and warm horizon glow.
+            val o = androidx.compose.ui.geometry.Offset
+            // Layered dusk sky and a soft sunset halo.
             drawRect(Brush.verticalGradient(
-                colors = listOf(Color(0xFF8A82C6), Color(0xFFF3A7B7), Color(0xFFFFD19A)),
-                startY = 0f, endY = h * 0.78f
+                listOf(Color(0xFF746EAA), Color(0xFFDC91B4), Color(0xFFFFC68F), Color(0xFF7C687B)),
+                startY = 0f, endY = h
             ))
-            drawCircle(
-                brush = Brush.radialGradient(listOf(Color(0xFFFFF0B3), Color(0x66FFD48D), Color.Transparent)),
-                radius = h * 0.43f,
-                center = androidx.compose.ui.geometry.Offset(w * 0.77f, h * 0.43f)
-            )
-            drawCircle(Color(0xFFFFE5A0), radius = h * 0.105f,
-                center = androidx.compose.ui.geometry.Offset(w * 0.77f, h * 0.43f))
-            // Distant blocky mountain range.
-            val far = Path().apply {
-                moveTo(0f, h * .63f); lineTo(w*.13f,h*.43f); lineTo(w*.22f,h*.51f)
-                lineTo(w*.38f,h*.25f); lineTo(w*.49f,h*.48f); lineTo(w*.59f,h*.34f)
-                lineTo(w*.72f,h*.57f); lineTo(w*.88f,h*.39f); lineTo(w,h*.54f)
-                lineTo(w,h); lineTo(0f,h); close()
+            drawCircle(Brush.radialGradient(
+                listOf(Color(0xFFFFE8AD), Color(0x66FFD19B), Color.Transparent),
+                center = o(w*.77f,h*.40f), radius = h*.42f
+            ), h*.42f, o(w*.77f,h*.40f))
+            drawCircle(Color(0xFFFFE6A0), h*.075f, o(w*.77f,h*.40f))
+            // Jagged, snow-tipped distant peaks with shaded faces.
+            val peaks = Path().apply {
+                moveTo(0f,h*.64f); lineTo(w*.10f,h*.48f); lineTo(w*.18f,h*.53f)
+                lineTo(w*.36f,h*.19f); lineTo(w*.41f,h*.31f); lineTo(w*.47f,h*.28f)
+                lineTo(w*.56f,h*.48f); lineTo(w*.65f,h*.37f); lineTo(w*.75f,h*.55f)
+                lineTo(w*.88f,h*.40f); lineTo(w,h*.52f); lineTo(w,h); lineTo(0f,h); close()
             }
-            drawPath(far, Color(0xFF67547F))
-            val near = Path().apply {
-                moveTo(0f,h*.72f); lineTo(w*.16f,h*.58f); lineTo(w*.29f,h*.66f)
-                lineTo(w*.43f,h*.49f); lineTo(w*.57f,h*.67f); lineTo(w*.71f,h*.57f)
-                lineTo(w*.86f,h*.67f); lineTo(w,h*.58f); lineTo(w,h); lineTo(0f,h); close()
+            drawPath(peaks, Color(0xFF5D4A73))
+            val snow = Path().apply {
+                moveTo(w*.31f,h*.29f); lineTo(w*.36f,h*.19f); lineTo(w*.41f,h*.31f)
+                lineTo(w*.385f,h*.28f); lineTo(w*.37f,h*.32f); lineTo(w*.35f,h*.27f); close()
             }
-            drawPath(near, Color(0xFF384D4A))
-            // Reflective river through the valley.
+            drawPath(snow, Color(0xFFD9CDE0))
+            val ridge = Path().apply {
+                moveTo(0f,h*.71f); lineTo(w*.13f,h*.59f); lineTo(w*.24f,h*.67f)
+                lineTo(w*.39f,h*.48f); lineTo(w*.53f,h*.66f); lineTo(w*.69f,h*.54f)
+                lineTo(w*.84f,h*.67f); lineTo(w,h*.57f); lineTo(w,h); lineTo(0f,h); close()
+            }
+            drawPath(ridge, Color(0xFF354B43))
+            // River narrows toward the horizon; layered glints create reflected sunset.
             val river = Path().apply {
-                moveTo(w*.43f,h*.64f); lineTo(w*.62f,h*.64f); lineTo(w*.77f,h)
-                lineTo(w*.27f,h); close()
+                moveTo(w*.45f,h*.64f); lineTo(w*.59f,h*.64f)
+                lineTo(w*.79f,h); lineTo(w*.23f,h); close()
             }
             drawPath(river, Brush.verticalGradient(
-                listOf(Color(0xFF8E829F), Color(0xFF526D7D), Color(0xFF233F50)),
-                startY=h*.62f, endY=h
+                listOf(Color(0xFF9D8297),Color(0xFF597985),Color(0xFF243F50)),
+                startY=h*.62f,endY=h
             ))
-            for (i in 0..7) {
-                val yy = h * (.72f + i * .035f)
-                val half = w * (.035f + i * .018f)
-                drawLine(Color(0xFFFFD8B0).copy(alpha=.48f-i*.035f),
-                    androidx.compose.ui.geometry.Offset(w*.53f-half,yy),
-                    androidx.compose.ui.geometry.Offset(w*.53f+half,yy),
-                    strokeWidth=(1.5f+i*.25f).dp.toPx())
+            for (i in 0..14) {
+                val yy=h*(.69f+i*.022f)
+                val half=w*(.018f+i*.012f)
+                drawLine(Color(0xFFFFD9B0).copy(alpha=.62f-i*.032f),
+                    o(w*.52f-half,yy),o(w*.52f+half,yy),
+                    strokeWidth=(1f+i*.12f).dp.toPx())
             }
-            // Pixelated grass banks.
-            drawRect(Color(0xFF48684A), topLeft=androidx.compose.ui.geometry.Offset(0f,h*.72f), size=Size(w*.34f,h*.28f))
-            drawRect(Color(0xFF59734B), topLeft=androidx.compose.ui.geometry.Offset(w*.78f,h*.70f), size=Size(w*.22f,h*.30f))
-            // Cherry trees: stepped canopies and dark block trunks.
+            // Blocky grassy banks and stepped shore.
+            drawRect(Color(0xFF4B6846),o(0f,h*.73f),Size(w*.31f,h*.27f))
+            drawRect(Color(0xFF526F49),o(w*.79f,h*.70f),Size(w*.21f,h*.30f))
+            for (i in 0..5) {
+                val bw=w*(.035f-i*.003f)
+                drawRect(if(i%2==0) Color(0xFF668052) else Color(0xFF405D42),
+                    o(w*(.03f+i*.035f),h*(.75f+i*.035f)),Size(bw,h*.025f))
+                drawRect(if(i%2==0) Color(0xFF668052) else Color(0xFF405D42),
+                    o(w*(.82f+i*.026f),h*(.74f+i*.032f)),Size(bw,h*.024f))
+            }
+            // Layered cherry canopies, shaded undersides and squared trunks.
             fun tree(x: Float, y: Float, scale: Float) {
-                val trunkW=h*.025f*scale
-                drawRect(Color(0xFF49333A), topLeft=androidx.compose.ui.geometry.Offset(x-trunkW/2,y), size=Size(trunkW,h*.25f*scale))
-                val colors=listOf(Color(0xFFB95F91),Color(0xFFE78CB7),Color(0xFFFFB7D2),Color(0xFFD977A8))
+                val trunkW=h*.019f*scale
+                drawRect(Color(0xFF493139),o(x-trunkW/2,y),Size(trunkW,h*.24f*scale))
+                drawRect(Color(0xFF74505A),o(x-trunkW*.12f,y),Size(trunkW*.24f,h*.20f*scale))
                 val blocks=listOf(
-                    Triple(-.09f,-.10f,.12f), Triple(-.16f,-.04f,.12f),
-                    Triple(-.04f,-.18f,.13f), Triple(.06f,-.12f,.13f),
-                    Triple(.13f,-.05f,.11f), Triple(.00f,.00f,.13f),
-                    Triple(-.12f,.02f,.10f), Triple(.09f,.03f,.10f)
+                    Triple(-.12f,-.10f,.15f),Triple(-.04f,-.19f,.14f),Triple(.07f,-.14f,.16f),
+                    Triple(.15f,-.06f,.13f),Triple(-.18f,-.03f,.12f),Triple(-.09f,.01f,.14f),
+                    Triple(.02f,.00f,.16f),Triple(.12f,.03f,.12f),Triple(.00f,-.08f,.15f),
+                    Triple(-.21f,-.12f,.10f),Triple(.20f,-.13f,.10f)
                 )
-                blocks.forEachIndexed { index, b ->
+                val shades=listOf(Color(0xFFB95F91),Color(0xFFE78CB7),Color(0xFFFFB9D5),Color(0xFFD979A9),Color(0xFFEA91BC))
+                blocks.forEachIndexed { index,b ->
                     val bw=h*b.third*scale
-                    drawRect(colors[index%colors.size],
-                        topLeft=androidx.compose.ui.geometry.Offset(x+h*b.first*scale-bw/2,y+h*b.second*scale-bw/2),
-                        size=Size(bw,bw*.78f))
+                    drawRect(Color(0xFF985078),o(x+h*b.first*scale-bw/2+2f,y+h*b.second*scale-bw/2+2f),Size(bw,bw*.76f))
+                    drawRect(shades[index%shades.size],o(x+h*b.first*scale-bw/2,y+h*b.second*scale-bw/2),Size(bw,bw*.72f))
                 }
             }
-            tree(w*.08f,h*.48f,1.45f)
-            tree(w*.22f,h*.61f,.85f)
-            tree(w*.91f,h*.48f,1.25f)
-            tree(w*.82f,h*.62f,.72f)
-            // Small lantern-lit cottage on the left bank.
-            drawRect(Color(0xFF49363A), topLeft=androidx.compose.ui.geometry.Offset(w*.19f,h*.61f), size=Size(w*.12f,h*.10f))
-            val roof=Path().apply { moveTo(w*.17f,h*.62f); lineTo(w*.25f,h*.54f); lineTo(w*.33f,h*.62f); close() }
-            drawPath(roof,Color(0xFF5A3B4A))
-            drawRect(Color(0xFFFFD58B),topLeft=androidx.compose.ui.geometry.Offset(w*.215f,h*.65f),size=Size(w*.018f,h*.025f))
-            drawRect(Color(0xFFFFD58B),topLeft=androidx.compose.ui.geometry.Offset(w*.27f,h*.65f),size=Size(w*.018f,h*.025f))
-            // Drifting petals add gentle motion without a video or heavy asset.
-            for (i in 0..17) {
-                val x=((i*.173f+floatMotion.value*.055f)%1f)*w
-                val y=((i*.137f+floatMotion.value*.11f)%1f)*h*.76f
+            tree(w*.06f,h*.47f,1.35f)
+            tree(w*.20f,h*.60f,.72f)
+            tree(w*.94f,h*.47f,1.23f)
+            tree(w*.83f,h*.61f,.78f)
+            tree(w*.37f,h*.67f,.45f)
+            // Timber cottage with gabled roof, lit windows, and warm lantern glow.
+            drawCircle(Color(0x55FFB95F),h*.095f,o(w*.265f,h*.68f))
+            drawRect(Color(0xFF49363A),o(w*.19f,h*.62f),Size(w*.13f,h*.105f))
+            val roof=Path().apply { moveTo(w*.17f,h*.63f);lineTo(w*.255f,h*.545f);lineTo(w*.34f,h*.63f);close() }
+            drawPath(roof,Color(0xFF49303C))
+            drawRect(Color(0xFF72505A),o(w*.195f,h*.62f),Size(w*.12f,h*.014f))
+            drawRect(Color(0xFFFFD98C),o(w*.215f,h*.655f),Size(w*.018f,h*.025f))
+            drawRect(Color(0xFFFFD98C),o(w*.273f,h*.655f),Size(w*.018f,h*.025f))
+            drawRect(Color(0xFF302A31),o(w*.244f,h*.68f),Size(w*.022f,h*.045f))
+            // Subtle stars and drifting blossom petals.
+            for (i in 0..13) {
+                val x=((i*.173f)%1f)*w
+                val y=((i*.119f)%1f)*h*.27f
+                drawCircle(Color.White.copy(alpha=.35f),h*.003f,o(x,y))
+            }
+            for (i in 0..22) {
+                val x=((i*.173f+floatMotion.value*.07f)%1f)*w
+                val y=((i*.137f+floatMotion.value*.10f)%1f)*h*.78f
                 drawRect(Color(0xFFFFC3DC).copy(alpha=.82f),
-                    topLeft=androidx.compose.ui.geometry.Offset(x,y),
-                    size=Size(h*.012f,h*.009f))
+                    o(x,y),Size(h*.012f,h*.008f))
             }
         }
     }
