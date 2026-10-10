@@ -36,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -179,7 +181,14 @@ private fun TabMenu(
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
-                }
+                },
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    indicatorColor = Color(0xFF292D32),
+                    unselectedIconColor = Color(0xFF9CA3AA),
+                    unselectedTextColor = Color(0xFF9CA3AA)
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
