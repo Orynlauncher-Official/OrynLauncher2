@@ -44,6 +44,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
@@ -54,6 +55,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.scrollbar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -121,6 +123,7 @@ import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
+import com.movtery.zalithlauncher.utils.backup.LauncherBackup
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger
@@ -156,6 +159,30 @@ fun LauncherSettingsScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var pendingRestoreUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val createBackupLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri ->
+        uri?.let { destination ->
+            coroutineScope.launch {
+                val result = withContext(Dispatchers.IO) { LauncherBackup.create(context, destination) }
+                withContext(Dispatchers.Main) {
+                    result.fold(
+                        onSuccess = { count ->
+                            Toast.makeText(context, "Backup saved successfully ($count files). Keep it outside this device to survive uninstall.", Toast.LENGTH_LONG).show()
+                        },
+                        onFailure = { error ->
+                            Toast.makeText(context, "Backup failed: ${error.message ?: "unknown error"}", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                }
+            }
+        }
+    }
+    val restoreBackupLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri -> pendingRestoreUri = uri }
 
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -221,6 +248,26 @@ fun LauncherSettingsScreen(
                         onClick = {
                             importLauncher.launch("application/json")
                         }
+                    )
+                }
+            }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SettingsCard(
+                        position = CardPosition.Top,
+                        title = "Create Full Backup",
+                        onClick = { createBackupLauncher.launch("OrynLauncher-Full-Backup.zip") }
+                    )
+                    SettingsCard(
+                        position = CardPosition.Bottom,
+                        title = "Restore Full Backup",
+                        onClick = { restoreBackupLauncher.launch(arrayOf("application/zip", "application/octet-stream")) }
                     )
                 }
             }
@@ -1078,6 +1125,31 @@ private fun BackgroundOperation(
                 backgroundViewModel.delete()
                 changeOperation(BackgroundOperation.None)
             }
+        }
+
+        pendingRestoreUri?.let { backupUri ->
+            AlertDialog(
+                onDismissRequest = { pendingRestoreUri = null },
+                title = { Text("Restore OrynLauncher backup?") },
+                text = { Text("This copies saved launcher files, instances, mods and worlds back into OrynLauncher. Existing files with the same names may be replaced. Account tokens are not included; you may need to sign in again.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        pendingRestoreUri = null
+                        coroutineScope.launch {
+                            val result = withContext(Dispatchers.IO) { LauncherBackup.restore(context, backupUri) }
+                            withContext(Dispatchers.Main) {
+                                result.fold(
+                                    onSuccess = { count -> Toast.makeText(context, "Restore finished ($count files). Restart OrynLauncher before playing.", Toast.LENGTH_LONG).show() },
+                                    onFailure = { error -> Toast.makeText(context, "Restore failed: ${error.message ?: "unknown error"}", Toast.LENGTH_LONG).show() }
+                                )
+                            }
+                        }
+                    }) { Text("Restore") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingRestoreUri = null }) { Text("Cancel") }
+                }
+            )
         }
     }
 }
