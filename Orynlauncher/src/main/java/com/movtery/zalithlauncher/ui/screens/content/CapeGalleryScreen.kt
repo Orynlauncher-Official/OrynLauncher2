@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -29,6 +31,8 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +40,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +64,15 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.labynet.LabyCapeApi
+import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.isSlimModel
+import com.movtery.zalithlauncher.game.account.wardrobe.validateSkinFile
+import com.movtery.zalithlauncher.game.account.wardrobe.validateCapeFile
+import com.movtery.zalithlauncher.viewmodel.AccountManageIntent
+import com.movtery.zalithlauncher.viewmodel.AccountManageViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.game.account.labynet.OfficialCape
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -82,6 +98,50 @@ fun CapeGalleryScreen(
     backStackViewModel: ScreenBackStackViewModel
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val accountManageViewModel: AccountManageViewModel = hiltViewModel()
+    val accounts by AccountsManager.accountsFlow.collectAsStateWithLifecycle()
+    val account = accounts.firstOrNull { it.uuid.toString().equals(key.accountUUID, ignoreCase = true) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+
+    fun importTexture(uri: Uri, isSkin: Boolean) {
+        val targetAccount = account ?: run {
+            Toast.makeText(context, "Account not found. Reopen this screen from Account Management.", Toast.LENGTH_LONG).show()
+            return
+        }
+        scope.launch(Dispatchers.IO) {
+            var temp: File? = null
+            try {
+                val input = context.contentResolver.openInputStream(uri)
+                    ?: throw IllegalArgumentException("Unable to open selected PNG")
+                temp = File.createTempFile(if (isSkin) "oryn_skin_" else "oryn_cape_", ".png", context.cacheDir)
+                input.use { source -> temp!!.outputStream().use { output -> source.copyTo(output) } }
+                if (isSkin) {
+                    if (!validateSkinFile(temp!!)) throw IllegalArgumentException("Invalid skin PNG. Use 64x64 or legacy 64x32.")
+                    val model = if (temp!!.isSlimModel()) SkinModelType.ALEX else SkinModelType.STEVE
+                    accountManageViewModel.onIntent(AccountManageIntent.ApplySkin(targetAccount, temp!!, model))
+                } else {
+                    if (!validateCapeFile(temp!!)) throw IllegalArgumentException("Invalid cape texture PNG.")
+                    accountManageViewModel.onIntent(AccountManageIntent.ApplyCustomCape(targetAccount, temp!!))
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, if (isSkin) "Skin import submitted." else "Cape imported and applied locally.", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, e.message ?: "Import failed", Toast.LENGTH_LONG).show()
+                }
+            } finally {
+                temp?.delete()
+            }
+        }
+    }
+    val skinPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) importTexture(uri, true)
+    }
+    val capePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) importTexture(uri, false)
+    }
     val client = remember {
         HttpClient {
             install(ContentNegotiation) {
@@ -147,7 +207,54 @@ fun CapeGalleryScreen(
                     }
                 }
 
-                when {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(onClick = { selectedTab = 0 }, modifier = Modifier.weight(1f), enabled = selectedTab != 0) { Text("Skins") }
+                    Button(onClick = { selectedTab = 1 }, modifier = Modifier.weight(1f), enabled = selectedTab != 1) { Text("Capes") }
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+                if (selectedTab == 0) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("SKIN STUDIO", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = if (account == null) "Open this screen from a valid account to manage its skin." else "Import a PNG skin for " + account.username + ". Microsoft accounts may upload the skin to your Minecraft profile.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
+                        )
+                        Button(onClick = { skinPicker.launch(arrayOf("image/png")) }, enabled = account != null, modifier = Modifier.fillMaxWidth()) {
+                            Text("Import & Apply Skin")
+                        }
+                        OutlinedButton(
+                            onClick = { account?.let { accountManageViewModel.onIntent(AccountManageIntent.ResetSkin(it)) } },
+                            enabled = account != null,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Reset to Default Skin") }
+                        Text(
+                            "PNG only • 64×64 or legacy 64×32 • Steve/Alex model auto-detected",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.58f)
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(onClick = { capePicker.launch(arrayOf("image/png")) }, enabled = account != null, modifier = Modifier.weight(1f)) {
+                            Text("Import Cape")
+                        }
+                        OutlinedButton(
+                            onClick = { account?.let { accountManageViewModel.onIntent(AccountManageIntent.ResetCape(it)) } },
+                            enabled = account != null,
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Remove Cape") }
+                    }
+                    when {
                     loading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -243,6 +350,7 @@ fun CapeGalleryScreen(
                                 )
                             }
                         }
+                    }
                     }
                 }
             }
