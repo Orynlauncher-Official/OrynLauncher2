@@ -393,35 +393,35 @@ private fun V5Home(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(64.dp)
-                            .clip(RoundedCornerShape(38.dp))
+                            .height(56.dp)
+                            .clip(RoundedCornerShape(32.dp))
                             .background(Color.White.copy(alpha = .17f))
                             .border(
                                 1.dp,
                                 Color.White.copy(alpha = .20f),
-                                RoundedCornerShape(38.dp)
+                                RoundedCornerShape(32.dp)
                             )
                             .clickable { onLaunchGame(null) }
-                            .padding(horizontal = 28.dp),
+                            .padding(horizontal = 24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             "▶",
                             color = Color.White,
-                            fontSize = 25.sp
+                            fontSize = 22.sp
                         )
                         Text(
                             "L A U N C H",
                             color = Color.White,
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 18.dp)
+                            modifier = Modifier.padding(start = 14.dp)
                         )
                         Spacer(Modifier.weight(1f))
                         Text(
                             "›",
                             color = Color.White.copy(alpha = .75f),
-                            fontSize = 34.sp
+                            fontSize = 30.sp
                         )
                     }
                 }
