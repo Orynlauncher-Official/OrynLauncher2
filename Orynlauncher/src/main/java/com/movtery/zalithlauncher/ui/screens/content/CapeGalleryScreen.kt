@@ -127,11 +127,24 @@ fun CapeGalleryScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 CardTitleLayout {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        text = stringResource(R.string.account_capes_labynet_title),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "ORYNLAUNCHER  /  CAPE GALLERY",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.account_capes_labynet_title),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                    }
                 }
 
                 when {
@@ -282,8 +295,11 @@ private fun OfficialCapeCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -294,8 +310,8 @@ private fun OfficialCapeCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(90.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
                 val bitmap = capeBitmap
