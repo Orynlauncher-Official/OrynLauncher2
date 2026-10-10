@@ -744,6 +744,31 @@ fun LauncherSettingsScreen(
             }
         }
     }
+
+    pendingRestoreUri?.let { backupUri ->
+        AlertDialog(
+            onDismissRequest = { pendingRestoreUri = null },
+            title = { Text("Restore OrynLauncher backup?") },
+            text = { Text("This copies saved launcher files, instances, mods and worlds back into OrynLauncher. Existing files with the same names may be replaced. Account tokens are not included; you may need to sign in again.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingRestoreUri = null
+                    coroutineScope.launch {
+                        val result = withContext(Dispatchers.IO) { LauncherBackup.restore(context, backupUri) }
+                        withContext(Dispatchers.Main) {
+                            result.fold(
+                                onSuccess = { count -> Toast.makeText(context, "Restore finished ($count files). Restart OrynLauncher before playing.", Toast.LENGTH_LONG).show() },
+                                onFailure = { error -> Toast.makeText(context, "Restore failed: ${error.message ?: "unknown error"}", Toast.LENGTH_LONG).show() }
+                            )
+                        }
+                    }
+                }) { Text("Restore") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingRestoreUri = null }) { Text("Cancel") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -1127,29 +1152,5 @@ private fun BackgroundOperation(
             }
         }
 
-        pendingRestoreUri?.let { backupUri ->
-            AlertDialog(
-                onDismissRequest = { pendingRestoreUri = null },
-                title = { Text("Restore OrynLauncher backup?") },
-                text = { Text("This copies saved launcher files, instances, mods and worlds back into OrynLauncher. Existing files with the same names may be replaced. Account tokens are not included; you may need to sign in again.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        pendingRestoreUri = null
-                        coroutineScope.launch {
-                            val result = withContext(Dispatchers.IO) { LauncherBackup.restore(context, backupUri) }
-                            withContext(Dispatchers.Main) {
-                                result.fold(
-                                    onSuccess = { count -> Toast.makeText(context, "Restore finished ($count files). Restart OrynLauncher before playing.", Toast.LENGTH_LONG).show() },
-                                    onFailure = { error -> Toast.makeText(context, "Restore failed: ${error.message ?: "unknown error"}", Toast.LENGTH_LONG).show() }
-                                )
-                            }
-                        }
-                    }) { Text("Restore") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { pendingRestoreUri = null }) { Text("Cancel") }
-                }
-            )
-        }
     }
 }
