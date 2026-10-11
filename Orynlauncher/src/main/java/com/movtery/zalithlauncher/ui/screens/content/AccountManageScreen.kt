@@ -306,7 +306,12 @@ private fun AccountManageContent(
                                 .size(width = 190.dp, height = 220.dp)
                                 .align(Alignment.CenterHorizontally)
                                 .clip(RoundedCornerShape(18.dp)),
-                            factory = { playerSkinPreview.loadWebView(context) },
+                            factory = {
+                                playerSkinPreview.loadWebView(context) {
+                                    playerSkinPreview.loadSkin(null, null)
+                                    playerSkinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                                }
+                            },
                             update = { view ->
                                 view.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                             }
