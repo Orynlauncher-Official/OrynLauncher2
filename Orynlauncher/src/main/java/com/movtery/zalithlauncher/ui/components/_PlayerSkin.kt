@@ -152,7 +152,7 @@ class PlayerSkin(
         currentSkinUrl = jsUrl
         currentSkinModel = modelString
 
-        webview?.evaluateJavascript("loadSkin('$jsUrl', '$modelString')", null)
+        runJavascript("loadSkin('$jsUrl', '$modelString')")
     }
 
     fun loadSkin(inputStream: InputStream?, model: SkinModelType?) {
@@ -163,7 +163,7 @@ class PlayerSkin(
         currentSkinUrl = dataUrl
         currentSkinModel = modelString
 
-        webview?.evaluateJavascript("loadSkin('$dataUrl', '$modelString')", null)
+        runJavascript("loadSkin('$dataUrl', '$modelString')")
     }
 
     fun loadCape(cape: PlayerProfile.Cape?) {
@@ -181,7 +181,7 @@ class PlayerSkin(
         currentCapeUrl = jsUrl
 
         val jsCall = if (path != null) "'$path'" else "null"
-        webview?.evaluateJavascript("loadCape($jsCall)", null)
+        runJavascript("loadCape($jsCall)")
     }
 
     fun loadCape(inputStream: InputStream?) {
@@ -194,6 +194,14 @@ class PlayerSkin(
         currentCapeId = null
         val jsCall = if (dataUrl != "null") "'$dataUrl'" else "null"
         webview?.evaluateJavascript("loadCape($jsCall)", null)
+    }
+
+    /** Execute JavaScript only on the WebView thread. */
+    private fun runJavascript(script: String) {
+        val view = webview ?: return
+        view.post {
+            if (webview === view) view.evaluateJavascript(script, null)
+        }
     }
 
     /**
@@ -215,10 +223,7 @@ class PlayerSkin(
         currentCapeId = null
 
         val capeJsCall = if (capeDataUrl != "null") "'$capeDataUrl'" else "null"
-        webview?.evaluateJavascript(
-            "loadSkinAndCape('$skinDataUrl', '$modelString', $capeJsCall)",
-            null
-        )
+        runJavascript("loadSkinAndCape('$skinDataUrl', '$modelString', $capeJsCall)")
     }
 
     /**
@@ -244,17 +249,11 @@ class PlayerSkin(
         animation: ModelAnimation,
         speed: Float? = null
     ) {
-        webview?.evaluateJavascript(
-            "startAnim('${animation.name}', $speed)",
-            null
-        )
+        runJavascript("startAnim('${animation.name}', $speed)")
     }
 
     fun setAzimuthAndPitch(azimuthDeg: Int, pitchDeg: Int, distance: Int = 60) {
-        webview?.evaluateJavascript(
-            "setAzimuthAndPitch($azimuthDeg, $pitchDeg, $distance)",
-            null
-        )
+        runJavascript("setAzimuthAndPitch($azimuthDeg, $pitchDeg, $distance)")
     }
 
     /**
