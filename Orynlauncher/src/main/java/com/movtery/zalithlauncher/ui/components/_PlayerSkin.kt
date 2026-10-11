@@ -193,7 +193,7 @@ class PlayerSkin(
         // When loading from a raw InputStream we cannot determine an ID, so we clear the stored ID.
         currentCapeId = null
         val jsCall = if (dataUrl != "null") "'$dataUrl'" else "null"
-        webview?.evaluateJavascript("loadCape($jsCall)", null)
+        runJavascript("loadCape($jsCall)")
     }
 
     /** Execute JavaScript only on the WebView thread. */
