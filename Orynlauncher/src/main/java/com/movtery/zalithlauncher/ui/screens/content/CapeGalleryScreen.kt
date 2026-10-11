@@ -59,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -260,7 +261,7 @@ fun CapeGalleryScreen(
                         refreshSkinAndCapePreview(account)
                     }
                     Card(
-                        modifier = Modifier.fillMaxWidth().height(280.dp),
+                        modifier = Modifier.fillMaxWidth().height(340.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f))
                     ) {
@@ -475,7 +476,8 @@ private fun OfficialCapeCard(
                     Image(
                         bitmap = bitmap.asImageBitmap(),
                         contentDescription = cape.alias,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
                 } else {
                     Text(
