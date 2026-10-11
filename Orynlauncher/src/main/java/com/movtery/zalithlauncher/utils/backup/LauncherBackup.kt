@@ -48,6 +48,7 @@ object LauncherBackup {
         val input = context.contentResolver.openInputStream(source)
             ?: error("Cannot open the selected backup")
         var restored = 0
+        var recognizedEntries = 0
         ZipInputStream(BufferedInputStream(input)).use { zip ->
             while (true) {
                 val entry = zip.nextEntry ?: break
@@ -71,6 +72,7 @@ object LauncherBackup {
                         }
                         else -> continue
                     }
+                    recognizedEntries++
                     if (relative.isBlank()) continue
                     val target = File(targetRoot, relative).canonicalFile
                     val canonicalRoot = targetRoot.canonicalFile
@@ -84,6 +86,9 @@ object LauncherBackup {
                     zip.closeEntry()
                 }
             }
+        }
+        if (recognizedEntries == 0) {
+            error("This ZIP does not contain an OrynLauncher backup. Choose the full backup ZIP created by OrynLauncher.")
         }
         restored
     }
