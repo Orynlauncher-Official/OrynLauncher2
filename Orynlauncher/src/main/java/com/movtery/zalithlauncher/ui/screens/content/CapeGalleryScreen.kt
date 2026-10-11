@@ -235,7 +235,12 @@ fun CapeGalleryScreen(
                         ) {
                             AndroidView(
                                 modifier = Modifier.fillMaxSize(),
-                                factory = { skinPreview.loadWebView(context) },
+                                factory = {
+                                    skinPreview.loadWebView(context) {
+                                        skinPreview.loadSkin(null, null)
+                                        skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                                    }
+                                },
                                 update = { it.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
                             )
                         }
