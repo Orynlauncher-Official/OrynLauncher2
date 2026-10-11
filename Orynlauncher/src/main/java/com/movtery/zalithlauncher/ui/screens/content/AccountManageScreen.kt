@@ -336,7 +336,7 @@ private fun AccountManageContent(
                                         } ?: playerSkinPreview.loadSkin(skinId = null, model = null)
                                         selected.getCapeFile().takeIf { it.isFile }?.let { file ->
                                             file.inputStream().use { playerSkinPreview.loadCape(it) }
-                                        } ?: playerSkinPreview.loadCape(null)
+                                        } ?: playerSkinPreview.loadCape(null as java.io.InputStream?)
                                     } else {
                                         playerSkinPreview.loadSkin(skinId = null, model = null)
                                         playerSkinPreview.loadCape(null)
