@@ -339,7 +339,7 @@ private fun AccountManageContent(
                                         } ?: playerSkinPreview.loadCape(null as java.io.InputStream?)
                                     } else {
                                         playerSkinPreview.loadSkin(skinId = null, model = null)
-                                        playerSkinPreview.loadCape(null)
+                                        playerSkinPreview.loadCape(null as java.io.InputStream?)
                                     }
                                     playerSkinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
                                 }
