@@ -133,6 +133,12 @@ class PathManager {
          * 处理历史遗留的旧文件
          */
         private fun handleLegacy() {
+            // Remove the inherited Zalith-named config from the launcher's game folder.
+            // This runs whenever paths are initialized, so existing installs are cleaned too.
+            File(DIR_GAME, "zalith-game.cfg").takeIf { it.exists() }?.let {
+                FileUtils.deleteQuietly(it)
+            }
+
             //不再支持的共用游戏运行日志
             File(DIR_FILES_EXTERNAL, LogName.GAME.fileName).takeIf { it.exists() }?.let {
                 FileUtils.deleteQuietly(it)
