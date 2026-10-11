@@ -61,13 +61,13 @@ jobs:
 
       - name: Upload Release APK for ${{ matrix.arch }}
         if: inputs.variant == 'Release'
-        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           # archive:false tek dosya yükler ve zip yapmaz.
           # Bu modda "name" parametresi dikkate alınmaz; artifact adı yüklenen dosyanın adı olur.
           name: OrynLauncherV5-Release.apk
           path: Orynlauncher/build/outputs/apk/release/OrynLauncherV5-Release.apk
+          if-no-files-found: error
           archive: false
 
       - name: Rename Debug APK
@@ -77,9 +77,9 @@ jobs:
 
       - name: Upload Debug APK for ${{ matrix.arch }}
         if: inputs.variant == 'Debug'
-        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: OrynLauncherV5-Debug.apk
           path: Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
+          if-no-files-found: error
           archive: false
