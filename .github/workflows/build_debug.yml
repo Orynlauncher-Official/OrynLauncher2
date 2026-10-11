@@ -38,9 +38,9 @@ jobs:
           mv Orynlauncher/build/outputs/apk/debug/*.apk Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
 
       - name: Upload Debug APK
-        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: OrynLauncherV5-Debug.apk
-          path: Orynlauncher/build/outputs/apk/debug/*.apk
+          path: Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
+          if-no-files-found: error
           archive: false
