@@ -586,7 +586,12 @@ fun LoginMenuDialog(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.68f)
                         )
                     }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+                    )
                     Row(
                         modifier = Modifier
                             .weight(1f, fill = false)
