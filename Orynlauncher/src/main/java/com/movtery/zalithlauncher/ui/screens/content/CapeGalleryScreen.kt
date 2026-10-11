@@ -233,11 +233,11 @@ fun CapeGalleryScreen(
                         LaunchedEffect(account?.uniqueUUID, account?.skinModelType, account?.hasSkinFile) {
                             val selectedAccount = account
                             if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                                withContext(Dispatchers.IO) {
-                                    FileInputStream(selectedAccount.getSkinFile()).use { stream ->
-                                        skinPreview.loadSkin(stream, selectedAccount.skinModelType)
-                                    }
+                                // Read disk data on IO, but never call PlayerSkin/WebView APIs off the main thread.
+                                val skinBytes = withContext(Dispatchers.IO) {
+                                    FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
                                 }
+                                skinPreview.loadSkin(skinBytes.inputStream(), selectedAccount.skinModelType)
                             } else {
                                 skinPreview.loadSkin(skinId = null, model = null)
                             }
