@@ -473,6 +473,7 @@ private fun AccountManageContent(
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 },
+                                onSkinCapeClick = { actions.navigateToCapeGallery(account.uniqueUUID) },
                                 onDeleteClick = {
                                     actions.onIntent(
                                         AccountManageIntent.UpdateAccountOp(AccountOperation.Delete(account))
@@ -511,6 +512,7 @@ private fun AccountCard(
     onSelected: () -> Unit,
     onRefreshClick: () -> Unit,
     onCopyUUID: () -> Unit,
+    onSkinCapeClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     val isSelected = currentAccount?.uniqueUUID == account.uniqueUUID
@@ -612,6 +614,13 @@ private fun AccountCard(
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onSkinCapeClick
+            ) {
+                Text("Skin & Cape")
+            }
         }
     }
 }
