@@ -108,7 +108,6 @@ fun CapeGalleryScreen(
     val accountManageViewModel: AccountManageViewModel = hiltViewModel()
     val accounts by AccountsManager.accountsFlow.collectAsStateWithLifecycle()
     val account = accounts.firstOrNull { it.uniqueUUID.equals(key.accountUUID, ignoreCase = true) }
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     fun importTexture(uri: Uri, isSkin: Boolean) {
         val targetAccount = account ?: run {
@@ -203,208 +202,193 @@ fun CapeGalleryScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = "ORYNLAUNCHER  /  CAPE GALLERY",
+                            text = "ORYNLAUNCHER  /  SKIN & CAPE",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = stringResource(R.string.account_capes_labynet_title),
+                            text = "Manage your character skin and cape together",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                         )
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(onClick = { selectedTab = 0 }, modifier = Modifier.weight(1f), enabled = selectedTab != 0) { Text("Skins") }
-                    Button(onClick = { selectedTab = 1 }, modifier = Modifier.weight(1f), enabled = selectedTab != 1) { Text("Capes") }
-                }
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
-                if (selectedTab == 0) {
-                    val skinPreview = remember(context) { PlayerSkin(context) }
-                    Column(
-                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        LaunchedEffect(account?.uniqueUUID, account?.skinModelType, account?.hasSkinFile) {
-                            val selectedAccount = account
-                            if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                                // Read disk data on IO, but never call PlayerSkin/WebView APIs off the main thread.
-                                val skinBytes = withContext(Dispatchers.IO) {
-                                    FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
-                                }
-                                skinPreview.loadSkin(skinBytes.inputStream(), selectedAccount.skinModelType)
-                            } else {
-                                skinPreview.loadSkin(skinId = null, model = null)
+                val skinPreview = remember(context) { PlayerSkin(context) }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("SKIN & CAPE PREVIEW", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = if (account == null) "Select an account in Manage Account to edit its cosmetics." else "Manage skin and cape together for ${account.username}.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
+                    )
+                    LaunchedEffect(account?.uniqueUUID, account?.skinModelType, account?.hasSkinFile) {
+                        val selectedAccount = account
+                        if (selectedAccount != null && selectedAccount.hasSkinFile) {
+                            val skinBytes = withContext(Dispatchers.IO) {
+                                FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
                             }
-                            skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                            skinPreview.loadSkin(skinBytes.inputStream(), selectedAccount.skinModelType)
+                        } else {
+                            skinPreview.loadSkin(skinId = null, model = null)
                         }
-                        Text("SKIN STUDIO", style = MaterialTheme.typography.titleMedium)
-                        Card(
-                            modifier = Modifier.fillMaxWidth().height(240.dp),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
-                        ) {
-                            AndroidView(
-                                modifier = Modifier.fillMaxSize(),
-                                factory = {
-                                    skinPreview.loadWebView(context) {
-                                        val selectedAccount = account
-                                        if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                                            FileInputStream(selectedAccount.getSkinFile()).use { stream ->
-                                                skinPreview.loadSkin(stream, selectedAccount.skinModelType)
-                                            }
-                                        } else {
-                                            skinPreview.loadSkin(skinId = null, model = null)
+                        skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                    }
+                    Card(
+                        modifier = Modifier.fillMaxWidth().height(280.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f))
+                    ) {
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = {
+                                skinPreview.loadWebView(context) {
+                                    val selectedAccount = account
+                                    if (selectedAccount != null && selectedAccount.hasSkinFile) {
+                                        val bytes = withContext(Dispatchers.IO) {
+                                            FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
                                         }
-                                        skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                                        skinPreview.loadSkin(bytes.inputStream(), selectedAccount.skinModelType)
+                                    } else {
+                                        skinPreview.loadSkin(skinId = null, model = null)
                                     }
-                                },
-                                update = { it.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
-                            )
-                        }
-                        Text(
-                            "Drag the character to rotate • Double-tap to reset view",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                                    skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                                }
+                            },
+                            update = { it.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
                         )
-                        DisposableEffect(skinPreview) {
-                            onDispose { skinPreview.destroy() }
-                        }
-                        Text(
-                            text = if (account == null) "Open this screen from a valid account to manage its skin." else "Import a PNG skin for " + account.username + ". Microsoft accounts may upload the skin to your Minecraft profile.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
-                        )
-                        Button(onClick = { skinPicker.launch(arrayOf("image/png")) }, enabled = account != null, modifier = Modifier.fillMaxWidth()) {
-                            Text("Import & Apply Skin")
-                        }
+                    }
+                    Text(
+                        "Drag the character to rotate • Double-tap to reset view",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { skinPicker.launch(arrayOf("image/png")) },
+                            enabled = account != null,
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Import Skin") }
                         OutlinedButton(
                             onClick = { account?.let { accountManageViewModel.onIntent(AccountManageIntent.ResetSkin(it)) } },
                             enabled = account != null,
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text("Reset to Default Skin") }
-                        Text(
-                            "PNG only • 64×64 or legacy 64×32 • Steve/Alex model auto-detected",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.58f)
-                        )
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Remove Skin") }
                     }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(onClick = { capePicker.launch(arrayOf("image/png")) }, enabled = account != null, modifier = Modifier.weight(1f)) {
-                            Text("Import Cape")
-                        }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { capePicker.launch(arrayOf("image/png")) },
+                            enabled = account != null,
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Import Cape") }
                         OutlinedButton(
                             onClick = { account?.let { accountManageViewModel.onIntent(AccountManageIntent.ResetCape(it)) } },
                             enabled = account != null,
                             modifier = Modifier.weight(1f)
                         ) { Text("Remove Cape") }
                     }
-                    when {
-                    loading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                    Text(
+                        "Skins: PNG 64×64 or legacy 64×32. Capes: PNG texture. Changes are stored locally where supported.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.58f)
+                    )
+                    DisposableEffect(skinPreview) {
+                        onDispose { skinPreview.destroy() }
                     }
-
-                    error != null -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+                    Text("CAPE COLLECTION", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Browse and save available cape textures to your collection.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                    )
+                    when {
+                        loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().height(140.dp),
+                                contentAlignment = Alignment.Center
+                            ) { CircularProgressIndicator() }
+                        }
+                        error != null -> {
                             Text(
                                 text = stringResource(R.string.account_capes_labynet_failed, error ?: ""),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(24.dp)
+                                modifier = Modifier.fillMaxWidth().padding(24.dp)
                             )
                         }
-                    }
-
-                    capes.isEmpty() -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        capes.isEmpty() -> {
                             Text(
                                 text = stringResource(R.string.account_capes_labynet_no_capes),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(24.dp)
+                                modifier = Modifier.fillMaxWidth().padding(24.dp)
                             )
                         }
-                    }
-
-                    else -> {
-                        LazyVerticalGrid(
-                            columns = GridCells.Adaptive(minSize = 150.dp),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            contentPadding = PaddingValues(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(capes, key = { it.name }) { cape ->
-                                OfficialCapeCard(
-                                    cape = cape,
-                                    isDownloading = downloading,
-                                    onDownload = {
-                                        val textureUrl = cape.texture ?: return@OfficialCapeCard
-                                        downloading = true
-                                        scope.launch(Dispatchers.IO) {
-                                            try {
-                                                val ext = "png"
-                                                val tempFile = File.createTempFile("cape_", ".$ext")
+                        else -> {
+                            LazyVerticalGrid(
+                                columns = GridCells.Adaptive(minSize = 130.dp),
+                                modifier = Modifier.fillMaxWidth().height(320.dp),
+                                contentPadding = PaddingValues(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(capes, key = { it.name }) { cape ->
+                                    OfficialCapeCard(
+                                        cape = cape,
+                                        isDownloading = downloading,
+                                        onDownload = {
+                                            val textureUrl = cape.texture ?: return@OfficialCapeCard
+                                            downloading = true
+                                            scope.launch(Dispatchers.IO) {
                                                 try {
-                                                    LabyCapeApi.downloadCapeImage(client, textureUrl, tempFile)
-                                                    AccountCapeCollection.addCape(
-                                                        accountUUID = key.accountUUID,
-                                                        textureFile = tempFile,
-                                                        name = cape.alias.ifBlank { cape.name },
-                                                        source = "Official",
-                                                        ext = ext
-                                                    )
+                                                    val tempFile = File.createTempFile("cape_", ".png")
+                                                    try {
+                                                        LabyCapeApi.downloadCapeImage(client, textureUrl, tempFile)
+                                                        AccountCapeCollection.addCape(
+                                                            accountUUID = key.accountUUID,
+                                                            textureFile = tempFile,
+                                                            name = cape.alias.ifBlank { cape.name },
+                                                            source = "Official",
+                                                            ext = "png"
+                                                        )
+                                                        withContext(Dispatchers.Main) {
+                                                            Toast.makeText(
+                                                                context,
+                                                                context.getString(R.string.account_capes_labynet_downloaded, cape.alias.ifBlank { cape.name }),
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    } finally {
+                                                        tempFile.delete()
+                                                    }
+                                                } catch (e: Exception) {
                                                     withContext(Dispatchers.Main) {
                                                         Toast.makeText(
                                                             context,
-                                                            context.getString(R.string.account_capes_labynet_downloaded, cape.alias.ifBlank { cape.name }),
+                                                            context.getString(R.string.account_capes_labynet_download_failed, e.message ?: ""),
                                                             Toast.LENGTH_SHORT
                                                         ).show()
                                                     }
                                                 } finally {
-                                                    tempFile.delete()
+                                                    downloading = false
                                                 }
-                                            } catch (e: Exception) {
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.account_capes_labynet_download_failed, e.message ?: ""),
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            } finally {
-                                                downloading = false
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
-                    }
                     }
                 }
             }
