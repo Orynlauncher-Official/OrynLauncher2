@@ -298,13 +298,21 @@ private fun AccountManageContent(
                     verticalArrangement = Arrangement.Center
                 ) {
                     if (currentAccount != null) {
-                        PlayerFace(
+                        // Interactive 3D preview; skinview3d has touch rotation enabled.
+                        val playerSkinPreview = remember(context) { PlayerSkin(context) }
+                        AndroidView(
                             modifier = Modifier
-                                .size(76.dp)
-                                .align(Alignment.CenterHorizontally),
-                            account = currentAccount,
-                            avatarSize = 76.dp
+                                .size(width = 190.dp, height = 220.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .clip(RoundedCornerShape(18.dp)),
+                            factory = { playerSkinPreview.loadWebView(context) },
+                            update = { view ->
+                                view.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                            }
                         )
+                        DisposableEffect(playerSkinPreview) {
+                            onDispose { playerSkinPreview.destroy() }
+                        }
                         Text(
                             text = currentAccount.username,
                             style = MaterialTheme.typography.titleMedium,
