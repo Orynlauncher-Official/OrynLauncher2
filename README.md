@@ -1,110 +1,72 @@
+# OrynLauncher
 
-# Zalith Launcher 2+ (PLUS)
+**OrynLauncher** is a community-built Android launcher for Minecraft: Java Edition, focused on a clean mobile experience, useful customization, and making Java Edition easier to manage on Android.
 
-[**「English」**](./README.md) | [中文（简体）](./README_ZH_CN.md) | [中文（台灣）](./README_ZH_TW.md) | [Türkçe](./README_TR.md)
+> **Project status:** OrynLauncher is community-developed software. Features and compatibility may change between versions. Back up your worlds and important launcher data before installing a new build.
 
-> **⚠️ UNOFFICIAL MODIFIED VERSION**
-> 
-> This is an unofficial fork of [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2). This project is **not affiliated with or endorsed by the official Zalith Launcher project**.
+## Features
 
-**Zalith Launcher 2+** is a community-modified launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). It builds upon the foundation of [Zalith Launcher 2](https://github.com/ZalithLauncher/ZalithLauncher2), utilizing [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine with a modern UI built using **Jetpack Compose** and **Material Design 3**.
+- **Minecraft: Java Edition on Android** — launch and manage supported game versions.
+- **Account management** — manage supported account types.
+- **Instances and game settings** — organize installations and configure launch options.
+- **Mods and downloads** — use the launcher’s available content-management tools.
+- **Skin and cape tools** — where supported by the account, server, and current build.
+- **Custom launcher experience** — an evolving OrynLauncher interface and feature set.
 
-## Some Statistics
+Availability may vary by release, device, Android version, Minecraft version, and account type.
 
-July 14, 2026:
-Excluding merges, 3 authors have pushed 265 commits to main and 266 commits to all branches.
+## Get OrynLauncher
 
-On main, 288 files have changed and there have been 10.634 additions and 3.095 deletions
+Download releases and build artifacts only from the official OrynLauncher project pages:
 
-## 📋 What's New in This Fork?
+- **Repository:** [OrynLauncher2](https://github.com/Orynlauncher-Official/OrynLauncher2)
+- **Releases:** [GitHub Releases](https://github.com/Orynlauncher-Official/OrynLauncher2/releases)
+- **Builds:** [GitHub Actions](https://github.com/Orynlauncher-Official/OrynLauncher2/actions)
 
-This fork aims to enhance and customize the original Zalith Launcher 2 experience. Some key improvements include:
+If you install a test or debug build, expect unfinished features and possible bugs. Do not share account credentials or private authentication files when reporting problems.
 
-- [x] Cape system
-- [x] Fixes
-- [x] Offline accounts
-- [x] Chroma names
-- [x] Shortcuts in main screen
-- [x] Importing/exporting settings
-- [x] Importing/exporting accounts along with capes and skins, chroma names
-- [x] Implemented mobileglues with config
-- [x] Config UI remake
-
-more that i cant count...
-
-
-## 🔗 Upstream Project
-
-This project is derived from the excellent work of the Zalith Launcher team:
-- **Original Project:** [ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)
-- **Original License:** GPL-3.0
-
-Please visit the upstream project if you want the official, unmodified version.
-
-## 🌐 Language and Translation Support
-
-This fork uses translations of Zalith Launcher 2. To contribute translations or improvements, please consider contributing upstream to the [Zalith Launcher 2 Weblate project](https://hosted.weblate.org/projects/zalithlauncher2).
-
-## 📦 Build Instructions (For Developers)
+## Build from Source
 
 ### Requirements
 
-* Android Studio **Bumblebee** or newer
-* Android SDK:
-  * **Minimum API level**: 26
-  * **Target API level**: 35
-* JDK 11
+- Android Studio with a compatible Android SDK
+- JDK version required by the project’s Gradle configuration
+- Git
 
-### Build Steps
+### Steps
 
 ```bash
-git clone https://github.com/Star1xr/ZalithLauncher2Plus.git
-# Open the project in Android Studio and build
+git clone https://github.com/Orynlauncher-Official/OrynLauncher2.git
+cd OrynLauncher2
 ```
 
-## 📜 License
+Open the project in Android Studio, allow Gradle to sync, then build the appropriate app variant. You can also use the Gradle wrapper from a terminal:
 
-This project is licensed under the **[GPL-3.0 license](LICENSE)**, inherited from the upstream Zalith Launcher 2 project.
+```bash
+./gradlew tasks
+```
 
-### Important Terms
+Use the tasks listed by Gradle for the available build variants. Build requirements may change as the project is updated.
 
-**Contributions and Attribution**
-   - All modifications are clearly documented and attributed to this fork
-   - The upstream project is properly credited
+## Contributing
 
-## 📦 Open Source Libraries and Licenses
+Contributions are welcome! Before opening a pull request, please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-This project inherits all dependencies from Zalith Launcher 2. Please refer to the original project's [README](https://github.com/ZalithLauncher/ZalithLauncher2/blob/main/README.md) for the complete list of open source libraries and their licenses.
+- Report bugs and request features through the repository’s GitHub Issues.
+- Keep pull requests focused and describe what changed and how you tested it.
+- Never commit passwords, tokens, private keys, or account data.
+- Preserve existing package names and project structure unless a change is specifically required and discussed.
 
-## 🤝 Contributing
+## License and Attribution
 
-This is a community fork. Before contributing:
+This project is distributed under the terms of the **GNU General Public License v3.0 (GPL-3.0)**; see [LICENSE](./LICENSE) for the applicable terms.
 
-1. Review the [CONTRIBUTING.md](./CONTRIBUTING.md) guidelines
-2. Check existing issues and pull requests
-3. Follow the code style and conventions
-4. Document your changes clearly
+OrynLauncher includes and builds on open-source software and libraries. Their respective licenses and notices remain applicable. Please retain required copyright notices and license information when modifying or redistributing the project.
 
-## ⚠️ Support and Disclaimers
+## Support
 
-- This is an **unofficial fork**. Official support should be sought from the [upstream Zalith Launcher 2 project](https://github.com/ZalithLauncher/ZalithLauncher2)
-- Please report bugs to this repository's issue tracker
-- For upstream-related issues, consider reporting to the original project first
-- Use at your own risk. This fork comes with no official warranty or support
-
-## 🔒 Security and Privacy
-
-- Always download from this official repository
-- Be cautious of third-party websites claiming to distribute this software
-- Protect your personal information and credentials
-- Report security issues responsibly through the issue tracker
-
-## 📞 Contact & Links
-
-- **Original Project:** https://github.com/ZalithLauncher/ZalithLauncher2
-- **This Fork:** https://github.com/Star1xr/ZalithLauncher2Plus
+For OrynLauncher-specific bugs or feature requests, use the [Issues page](https://github.com/Orynlauncher-Official/OrynLauncher2/issues). Include the launcher version, Android version, device details, steps to reproduce, and relevant logs—after removing personal information and secrets.
 
 ---
 
-**Zalith Launcher 2** is the original project created and maintained by the Zalith Launcher team.  
-**Zalith Launcher 2+** is an unofficial community fork created to provide enhanced features and modifications.
+**OrynLauncher** — Minecraft Java Edition on Android, shaped by the community.
