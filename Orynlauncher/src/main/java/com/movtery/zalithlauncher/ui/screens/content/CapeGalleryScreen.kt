@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.labynet.LabyCapeApi
+import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.isSlimModel
@@ -230,17 +232,32 @@ fun CapeGalleryScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f)
                     )
-                    LaunchedEffect(account?.uniqueUUID, account?.skinModelType, account?.hasSkinFile) {
-                        val selectedAccount = account
-                        if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                            val skinBytes = withContext(Dispatchers.IO) {
-                                FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
+                    val latestAccount by rememberUpdatedState(account)
+                    fun refreshSkinAndCapePreview(targetAccount: Account?) {
+                        val skinFile = targetAccount?.getSkinFile()
+                        val capeFile = targetAccount?.getCapeFile()
+                        scope.launch {
+                            val textures = withContext(Dispatchers.IO) {
+                                val skinBytes = skinFile?.takeIf { it.isFile }?.readBytes()
+                                val capeBytes = capeFile?.takeIf { it.isFile }?.readBytes()
+                                skinBytes to capeBytes
                             }
-                            skinPreview.loadSkin(skinBytes.inputStream(), selectedAccount.skinModelType)
-                        } else {
-                            skinPreview.loadSkin(skinId = null, model = null)
+                            withContext(Dispatchers.Main) {
+                                skinPreview.loadSkin(textures.first?.inputStream(), targetAccount?.skinModelType)
+                                skinPreview.loadCape(textures.second?.inputStream())
+                                skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                            }
                         }
-                        skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                    }
+                    LaunchedEffect(
+                        account?.uniqueUUID,
+                        account?.skinModelType,
+                        account?.getSkinFile()?.exists(),
+                        account?.getSkinFile()?.lastModified(),
+                        account?.getCapeFile()?.exists(),
+                        account?.getCapeFile()?.lastModified()
+                    ) {
+                        refreshSkinAndCapePreview(account)
                     }
                     Card(
                         modifier = Modifier.fillMaxWidth().height(280.dp),
@@ -251,15 +268,7 @@ fun CapeGalleryScreen(
                             modifier = Modifier.fillMaxSize(),
                             factory = {
                                 skinPreview.loadWebView(context) {
-                                    val selectedAccount = account
-                                    if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                                        FileInputStream(selectedAccount.getSkinFile()).use { stream ->
-                                            skinPreview.loadSkin(stream, selectedAccount.skinModelType)
-                                        }
-                                    } else {
-                                        skinPreview.loadSkin(skinId = null, model = null)
-                                    }
-                                    skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                                    refreshSkinAndCapePreview(latestAccount)
                                 }
                             },
                             update = { it.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
@@ -354,17 +363,19 @@ fun CapeGalleryScreen(
                                                     val tempFile = File.createTempFile("cape_", ".png")
                                                     try {
                                                         LabyCapeApi.downloadCapeImage(client, textureUrl, tempFile)
-                                                        AccountCapeCollection.addCape(
+                                                        val downloadedCape = AccountCapeCollection.addCape(
                                                             accountUUID = key.accountUUID,
                                                             textureFile = tempFile,
                                                             name = cape.alias.ifBlank { cape.name },
                                                             source = "Official",
                                                             ext = "png"
                                                         )
+                                                        AccountCapeCollection.setActiveCape(key.accountUUID, downloadedCape.id)
+                                                        AccountsManager.refreshWardrobe()
                                                         withContext(Dispatchers.Main) {
                                                             Toast.makeText(
                                                                 context,
-                                                                context.getString(R.string.account_capes_labynet_downloaded, cape.alias.ifBlank { cape.name }),
+                                                                "${cape.alias.ifBlank { cape.name }} downloaded and applied.",
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
