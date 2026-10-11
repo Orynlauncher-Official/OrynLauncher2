@@ -10,6 +10,8 @@ import android.graphics.RectF
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -94,6 +96,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileInputStream
 
 @Composable
 fun CapeGalleryScreen(
@@ -224,9 +227,22 @@ fun CapeGalleryScreen(
                 if (selectedTab == 0) {
                     val skinPreview = remember(context) { PlayerSkin(context) }
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        LaunchedEffect(account?.uniqueUUID, account?.skinModelType, account?.hasSkinFile) {
+                            val selectedAccount = account
+                            if (selectedAccount != null && selectedAccount.hasSkinFile) {
+                                withContext(Dispatchers.IO) {
+                                    FileInputStream(selectedAccount.getSkinFile()).use { stream ->
+                                        skinPreview.loadSkin(stream, selectedAccount.skinModelType)
+                                    }
+                                }
+                            } else {
+                                skinPreview.loadSkin(skinId = null, model = null)
+                            }
+                            skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                        }
                         Text("SKIN STUDIO", style = MaterialTheme.typography.titleMedium)
                         Card(
                             modifier = Modifier.fillMaxWidth().height(240.dp),
@@ -237,7 +253,14 @@ fun CapeGalleryScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 factory = {
                                     skinPreview.loadWebView(context) {
-                                        skinPreview.loadSkin(skinId = null, model = null)
+                                        val selectedAccount = account
+                                        if (selectedAccount != null && selectedAccount.hasSkinFile) {
+                                            FileInputStream(selectedAccount.getSkinFile()).use { stream ->
+                                                skinPreview.loadSkin(stream, selectedAccount.skinModelType)
+                                            }
+                                        } else {
+                                            skinPreview.loadSkin(skinId = null, model = null)
+                                        }
                                         skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
                                     }
                                 },
