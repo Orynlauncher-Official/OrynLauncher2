@@ -54,10 +54,27 @@ object LauncherBackup {
                 val entry = zip.nextEntry ?: break
                 try {
                     if (entry.isDirectory || entry.name == "ORYN_BACKUP_INFO.txt") continue
-                    val normalized = entry.name.replace('\\', '/')
+                    var normalized = entry.name.replace('\\', '/')
                     if (normalized.startsWith("/") || normalized.split('/').any { it == ".." }) {
                         error("Backup contains an unsafe path")
                     }
+
+                    // Some file managers wrap the ZIP contents in one parent directory
+                    // when creating or re-compressing an archive. Accept that layout too.
+                    if (!normalized.startsWith(PRIVATE_PREFIX) &&
+                        !normalized.startsWith(EXTERNAL_PREFIX)
+                    ) {
+                        val firstSeparator = normalized.indexOf('/')
+                        if (firstSeparator > 0) {
+                            val withoutWrapper = normalized.substring(firstSeparator + 1)
+                            if (withoutWrapper.startsWith(PRIVATE_PREFIX) ||
+                                withoutWrapper.startsWith(EXTERNAL_PREFIX)
+                            ) {
+                                normalized = withoutWrapper
+                            }
+                        }
+                    }
+
                     val targetRoot: File
                     val relative: String
                     when {
