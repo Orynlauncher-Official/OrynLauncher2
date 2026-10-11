@@ -66,6 +66,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -299,8 +300,27 @@ private fun AccountManageContent(
                     verticalArrangement = Arrangement.Center
                 ) {
                     if (currentAccount != null) {
-                        // Interactive 3D preview; skinview3d has touch rotation enabled.
+                        // Interactive 3D preview; always reflect the selected account's current skin and cape.
                         val playerSkinPreview = remember(context) { PlayerSkin(context) }
+                        val latestCurrentAccount by rememberUpdatedState(currentAccount)
+                        LaunchedEffect(
+                            currentAccount.uniqueUUID,
+                            currentAccount.skinModelType,
+                            currentAccount.getSkinFile().exists(),
+                            currentAccount.getSkinFile().lastModified(),
+                            currentAccount.getCapeFile().exists(),
+                            currentAccount.getCapeFile().lastModified()
+                        ) {
+                            val skinFile = currentAccount.getSkinFile()
+                            val capeFile = currentAccount.getCapeFile()
+                            val textures = withContext(Dispatchers.IO) {
+                                (skinFile.takeIf { it.isFile }?.readBytes()) to
+                                    (capeFile.takeIf { it.isFile }?.readBytes())
+                            }
+                            playerSkinPreview.loadSkin(textures.first?.inputStream(), currentAccount.skinModelType)
+                            playerSkinPreview.loadCape(textures.second?.inputStream())
+                            playerSkinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
+                        }
                         AndroidView(
                             modifier = Modifier
                                 .size(width = 190.dp, height = 220.dp)
@@ -308,7 +328,19 @@ private fun AccountManageContent(
                                 .clip(RoundedCornerShape(18.dp)),
                             factory = {
                                 playerSkinPreview.loadWebView(context) {
-                                    playerSkinPreview.loadSkin(skinId = null, model = null)
+                                    // This callback runs after the page is ready, so load the latest selected account.
+                                    val selected = latestCurrentAccount
+                                    if (selected != null) {
+                                        selected.getSkinFile().takeIf { it.isFile }?.let { file ->
+                                            file.inputStream().use { playerSkinPreview.loadSkin(it, selected.skinModelType) }
+                                        } ?: playerSkinPreview.loadSkin(skinId = null, model = null)
+                                        selected.getCapeFile().takeIf { it.isFile }?.let { file ->
+                                            file.inputStream().use { playerSkinPreview.loadCape(it) }
+                                        } ?: playerSkinPreview.loadCape(null)
+                                    } else {
+                                        playerSkinPreview.loadSkin(skinId = null, model = null)
+                                        playerSkinPreview.loadCape(null)
+                                    }
                                     playerSkinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
                                 }
                             },
