@@ -907,11 +907,11 @@ class AccountManageViewModel @Inject constructor(
     /** Reset cape data */
     private fun resetCape(account: Account) {
         TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = {
-            account.apply {
-                FileUtils.deleteQuietly(getCapeFile())
-                AccountsManager.suspendSaveAccount(this)
-                AccountsManager.refreshWardrobe()
-            }
+            // Clear the active collection entry as well as the legacy account cape file.
+            AccountCapeCollection.clearActiveCape(account.uniqueUUID)
+            FileUtils.deleteQuietly(File(PathManager.DIR_ACCOUNT_CAPE, "${account.uniqueUUID}.png"))
+            AccountsManager.suspendSaveAccount(account)
+            AccountsManager.refreshWardrobe()
         }))
         onIntent(
             AccountManageIntent.UpdateAccountSkinOp(
