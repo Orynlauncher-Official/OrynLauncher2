@@ -253,10 +253,9 @@ fun CapeGalleryScreen(
                                 skinPreview.loadWebView(context) {
                                     val selectedAccount = account
                                     if (selectedAccount != null && selectedAccount.hasSkinFile) {
-                                        val bytes = withContext(Dispatchers.IO) {
-                                            FileInputStream(selectedAccount.getSkinFile()).use { it.readBytes() }
+                                        FileInputStream(selectedAccount.getSkinFile()).use { stream ->
+                                            skinPreview.loadSkin(stream, selectedAccount.skinModelType)
                                         }
-                                        skinPreview.loadSkin(bytes.inputStream(), selectedAccount.skinModelType)
                                     } else {
                                         skinPreview.loadSkin(skinId = null, model = null)
                                     }
