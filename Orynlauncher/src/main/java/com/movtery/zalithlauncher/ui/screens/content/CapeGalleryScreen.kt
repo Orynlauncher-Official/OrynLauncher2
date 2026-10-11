@@ -158,7 +158,7 @@ fun CapeGalleryScreen(
             }
         }
     }
-    val scope = rememberCoroutineScope()
+
 
     var capes by remember { mutableStateOf<List<OfficialCape>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
