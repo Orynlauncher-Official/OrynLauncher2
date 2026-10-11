@@ -44,6 +44,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -60,6 +61,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.movtery.zalithlauncher.R
@@ -77,6 +79,7 @@ import com.movtery.zalithlauncher.game.account.labynet.OfficialCape
 import com.movtery.zalithlauncher.game.account.wardrobe.AccountCapeCollection
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -219,11 +222,31 @@ fun CapeGalleryScreen(
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
                 if (selectedTab == 0) {
+                    val skinPreview = remember(context) { PlayerSkin(context) }
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text("SKIN STUDIO", style = MaterialTheme.typography.titleMedium)
+                        Card(
+                            modifier = Modifier.fillMaxWidth().height(240.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
+                        ) {
+                            AndroidView(
+                                modifier = Modifier.fillMaxSize(),
+                                factory = { skinPreview.loadWebView(context) },
+                                update = { it.setBackgroundColor(android.graphics.Color.TRANSPARENT) }
+                            )
+                        }
+                        Text(
+                            "Drag the character to rotate • Double-tap to reset view",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+                        )
+                        DisposableEffect(skinPreview) {
+                            onDispose { skinPreview.destroy() }
+                        }
                         Text(
                             text = if (account == null) "Open this screen from a valid account to manage its skin." else "Import a PNG skin for " + account.username + ". Microsoft accounts may upload the skin to your Minecraft profile.",
                             style = MaterialTheme.typography.bodyMedium,
