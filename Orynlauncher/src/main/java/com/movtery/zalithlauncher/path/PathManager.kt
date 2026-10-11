@@ -133,10 +133,12 @@ class PathManager {
          * 处理历史遗留的旧文件
          */
         private fun handleLegacy() {
-            // Remove the inherited Zalith-named config from the launcher's game folder.
-            // This runs whenever paths are initialized, so existing installs are cleaned too.
-            File(DIR_GAME, "zalith-game.cfg").takeIf { it.exists() }?.let {
-                FileUtils.deleteQuietly(it)
+            // Migrate the legacy config without discarding user data.
+            // Keep the Oryn config if it already exists; otherwise rename the legacy file.
+            val legacyGameConfig = File(DIR_GAME, "zalith-game.cfg")
+            val orynGameConfig = File(DIR_GAME, "oryn-game.cfg")
+            if (legacyGameConfig.isFile && !orynGameConfig.exists()) {
+                runCatching { legacyGameConfig.renameTo(orynGameConfig) }
             }
 
             //不再支持的共用游戏运行日志
