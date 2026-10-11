@@ -237,7 +237,7 @@ fun CapeGalleryScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 factory = {
                                     skinPreview.loadWebView(context) {
-                                        skinPreview.loadSkin(null, null)
+                                        skinPreview.loadSkin(skinId = null, model = null)
                                         skinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
                                     }
                                 },
