@@ -308,7 +308,7 @@ private fun AccountManageContent(
                                 .clip(RoundedCornerShape(18.dp)),
                             factory = {
                                 playerSkinPreview.loadWebView(context) {
-                                    playerSkinPreview.loadSkin(null, null)
+                                    playerSkinPreview.loadSkin(skinId = null, model = null)
                                     playerSkinPreview.startAnim(com.movtery.zalithlauncher.ui.components.ModelAnimation.NewIdle)
                                 }
                             },
