@@ -200,6 +200,12 @@ fun MainScreen(
                 toDownloadScreen = {
                     screenBackStackModel.navigateToDownload()
                 },
+                toInstancesScreen = {
+                    screenBackStackModel.mainScreen.removeAndNavigateTo(
+                        removes = screenBackStackModel.clearBeforeNavKeys,
+                        screenKey = NormalNavKey.VersionsManager
+                    )
+                },
                 toMultiplayerScreen = {
                     screenBackStackModel.mainScreen.removeAndNavigateTo(
                         removes = screenBackStackModel.clearBeforeNavKeys,
@@ -264,6 +270,7 @@ private fun <E: TitledNavKey> TopBar(
     toMainScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
     toDownloadScreen: () -> Unit,
+    toInstancesScreen: () -> Unit,
     toFileManagerScreen: () -> Unit,
     toMultiplayerScreen: () -> Unit,
     toRecordingsScreen: () -> Unit,
@@ -275,6 +282,7 @@ private fun <E: TitledNavKey> TopBar(
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inRecordingsScreen = mainScreenKey is NormalNavKey.Recordings
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
+    val inInstancesScreen = mainScreenKey is NormalNavKey.VersionsManager
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
 
     CompositionLocalProvider(
@@ -452,6 +460,15 @@ private fun <E: TitledNavKey> TopBar(
                     text = stringResource(R.string.terracotta),
                     onClick = {
                         if (!inMultiplayerScreen) toMultiplayerScreen()
+                    },
+                )
+
+                TopBarRailItem(
+                    selected = inInstancesScreen,
+                    painter = painterResource(R.drawable.ic_assignment_filled),
+                    text = "Instances",
+                    onClick = {
+                        if (!inInstancesScreen) toInstancesScreen()
                     },
                 )
 
