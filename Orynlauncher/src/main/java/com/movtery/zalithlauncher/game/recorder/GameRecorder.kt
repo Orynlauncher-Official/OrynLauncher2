@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.game.recorder
 
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioPlaybackCaptureConfiguration
@@ -37,9 +36,9 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
-import android.view.PixelCopy
-import android.view.SurfaceView
-import android.view.TextureView
+import android.hardware.display.DisplayManager
+import android.hardware.display.VirtualDisplay
+import android.os.ParcelFileDescriptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -107,7 +106,12 @@ object GameRecorder {
     private var captureHandler: Handler?       = null
     private val isCapturing = AtomicBoolean(false)
 
-    private var captureBitmap: Bitmap? = null
+    private var virtualDisplay: VirtualDisplay? = null
+    private var projectionCallback: MediaProjection.Callback? = null
+    private var pendingPfd: ParcelFileDescriptor? = null
+
+    private val _lastError = MutableStateFlow<String?>(null)
+    val lastError: StateFlow<String?> = _lastError.asStateFlow()
 
     @Volatile private var recordingStartNs      = 0L
     @Volatile private var muxerStartedNs        = 0L
@@ -122,14 +126,13 @@ object GameRecorder {
     fun start(context: Context, projection: MediaProjection) {
         if (_state.value != RecordingState.IDLE) return
 
-        val view = GameSurfaceRegistry.getView()
-        if (view == null) {
-            Log.e(TAG, "No game surface registered — cannot start recording")
-            return
-        }
-
-        val w = (view.width.coerceAtLeast(2)  / 2) * 2
-        val h = (view.height.coerceAtLeast(2) / 2) * 2
+        _lastError.value = null
+        // Capture the actual Android display into the encoder. Capturing the
+        // game's SurfaceView with PixelCopy was fragile and could produce black
+        // files when the renderer used TextureView or recreated its surface.
+        val metrics = context.resources.displayMetrics
+        val w = (metrics.widthPixels.coerceAtLeast(2) / 2) * 2
+        val h = (metrics.heightPixels.coerceAtLeast(2) / 2) * 2
 
         try {
             val (uri, file) = createOutputEntry(context)
@@ -148,8 +151,10 @@ object GameRecorder {
             audioStartOffsetUs = 0L
             totalPausedUs      = 0L
 
-            val fd = context.contentResolver.openFileDescriptor(uri, "w")!!.fileDescriptor
-            muxer = MediaMuxer(fd, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val pfd = context.contentResolver.openFileDescriptor(uri, "w")
+                ?: throw IOException("Android could not open the recording output file.")
+            pendingPfd = pfd
+            muxer = MediaMuxer(pfd.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
 
             val videoFmt = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
                 setInteger(MediaFormat.KEY_COLOR_FORMAT,
@@ -177,12 +182,29 @@ object GameRecorder {
                 c.start()
             }
 
-            audioRecord    = buildAudioRecord(projection)
-            micAudioRecord = buildMicAudioRecord()
+            audioRecord = runCatching { buildAudioRecord(projection) }
+                .onFailure { Log.w(TAG, "Game audio capture unavailable; continuing without audio: ${it.message}") }
+                .getOrNull()
+            // Microphone capture is created only after the player explicitly
+            // enables the microphone and grants RECORD_AUDIO permission.
+            micAudioRecord = null
             _micEnabled.value = false
 
-            captureThread  = HandlerThread("GameRecorder-Capture").also { it.start() }
+            captureThread  = HandlerThread("OrynRecorder-Capture").also { it.start() }
             captureHandler = Handler(captureThread!!.looper)
+            val callback = object : MediaProjection.Callback() {
+                override fun onStop() {
+                    val ctx = appContext ?: context
+                    if (_state.value != RecordingState.IDLE &&
+                        _state.value != RecordingState.STOPPING
+                    ) {
+                        _lastError.value = "Screen capture permission ended. The recording is being saved."
+                        stopAndSave(ctx)
+                    }
+                }
+            }
+            projection.registerCallback(callback, captureHandler)
+            projectionCallback = callback
 
             accumulatedMs    = 0L
             resumeTimeMs     = System.currentTimeMillis()
@@ -191,7 +213,9 @@ object GameRecorder {
             startTimerTick()
 
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to start recording: ${e.message}")
+            val message = "Could not start recording: ${e.message ?: e.javaClass.simpleName}"
+            Log.e(TAG, message, e)
+            _lastError.value = message
             cleanup()
             return
         }
@@ -206,7 +230,7 @@ object GameRecorder {
                 }
 
                 recordingStartNs = System.nanoTime()
-                audioRecord!!.startRecording()
+                audioRecord?.startRecording()
                 audioStartOffsetUs = (System.nanoTime() - recordingStartNs) / 1_000L
 
                 if (videoTrackIndex >= 0 && audioTrackIndex >= 0) {
@@ -225,16 +249,25 @@ object GameRecorder {
                 startVideoEncodeJob()
                 startAudioJob()
 
+                val densityDpi = metrics.densityDpi.coerceAtLeast(1)
+                virtualDisplay = projection.createVirtualDisplay(
+                    "OrynLauncher Screen Recorder",
+                    w,
+                    h,
+                    densityDpi,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    inputSurface,
+                    null,
+                    captureHandler
+                ) ?: throw IllegalStateException("Android could not create a screen-capture display.")
                 captureStartNs = System.nanoTime()
 
-                isCapturing.set(true)
-                scheduleNextFrame()
-
                 playRecordingStartSound()
-
-                Log.i(TAG, "Recording started ${w}x${h} — audio via AudioPlaybackCapture")
+                Log.i(TAG, "Recording started ${w}x${h} — Android display capture enabled")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed during codec priming: ${e.message}")
+                val message = "Recording failed to initialize: ${e.message ?: e.javaClass.simpleName}"
+                Log.e(TAG, message, e)
+                _lastError.value = message
                 cleanup()
             }
         }
@@ -244,6 +277,7 @@ object GameRecorder {
         if (_state.value != RecordingState.RECORDING) return
         try {
             isCapturing.set(false)
+            runCatching { virtualDisplay?.setSurface(null) }
             pauseStartMs   = System.currentTimeMillis()
             accumulatedMs += System.currentTimeMillis() - resumeTimeMs
             timerJob?.cancel(); timerJob = null
@@ -272,11 +306,11 @@ object GameRecorder {
                     micAudioRecord?.startRecording()
                 }
             }
+            runCatching { virtualDisplay?.setSurface(inputSurface) }
             isCapturing.set(true)
             resumeTimeMs = System.currentTimeMillis()
             startTimerTick()
             _state.value = RecordingState.RECORDING
-            scheduleNextFrame()
             Log.i(TAG, "Recording resumed")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to resume: ${e.message}")
@@ -291,8 +325,25 @@ object GameRecorder {
         val state = _state.value
         if (state != RecordingState.RECORDING && state != RecordingState.PAUSED) return
         val mar = micAudioRecord ?: run {
-            Log.w(TAG, "Microphone AudioRecord not available")
-            return
+            val ctx = appContext
+            if (ctx == null ||
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    ctx, android.Manifest.permission.RECORD_AUDIO
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                _lastError.value = "Allow microphone permission before enabling microphone audio."
+                Log.w(TAG, "Microphone permission has not been granted")
+                return
+            }
+            val projection = mediaProjection
+            if (projection == null) return
+            buildMicAudioRecord().also { created ->
+                if (created == null) {
+                    _lastError.value = "Microphone audio could not be initialized on this device."
+                    return
+                }
+                micAudioRecord = created
+            }
         }
         try {
             if (mar.recordingState != AudioRecord.RECORDSTATE_RECORDING &&
@@ -552,55 +603,6 @@ object GameRecorder {
         return rawUs - startUs - totalPausedUs
     }
 
-    private fun scheduleNextFrame() {
-        if (!isCapturing.get() || _state.value != RecordingState.RECORDING) return
-        captureHandler?.postDelayed({ captureFrame() }, 1000L / FRAME_RATE)
-    }
-
-    private fun captureFrame() {
-        if (!isCapturing.get()) return
-        if (_state.value != RecordingState.RECORDING) return
-
-        val view    = GameSurfaceRegistry.getView()
-        val surface = inputSurface
-        if (view == null || surface == null) { scheduleNextFrame(); return }
-
-        when (view) {
-            is SurfaceView -> captureFromSurfaceView(view, surface)
-            is TextureView -> captureFromTextureView(view, surface)
-            else           -> scheduleNextFrame()
-        }
-    }
-
-    private fun captureFromSurfaceView(sv: SurfaceView, out: android.view.Surface) {
-        val w = sv.width.coerceAtLeast(1)
-        val h = sv.height.coerceAtLeast(1)
-        val bmp = captureBitmap?.takeIf { !it.isRecycled && it.width == w && it.height == h }
-            ?: Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).also { captureBitmap = it }
-        PixelCopy.request(sv, bmp, { result ->
-            if (result == PixelCopy.SUCCESS) drawToSurface(bmp, out)
-            scheduleNextFrame()
-        }, captureHandler!!)
-    }
-
-    private fun captureFromTextureView(tv: TextureView, out: android.view.Surface) {
-        val bmp = tv.getBitmap(tv.width.coerceAtLeast(1), tv.height.coerceAtLeast(1))
-        if (bmp != null) { drawToSurface(bmp, out); bmp.recycle() }
-        scheduleNextFrame()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun drawToSurface(bmp: Bitmap, surface: android.view.Surface) {
-        runCatching {
-            val canvas = try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) surface.lockHardwareCanvas()
-                else surface.lockCanvas(null)
-            } catch (_: Exception) { surface.lockCanvas(null) }
-            canvas.drawBitmap(bmp, 0f, 0f, null)
-            surface.unlockCanvasAndPost(canvas)
-        }.onFailure { Log.w(TAG, "drawToSurface failed: ${it.message}") }
-    }
-
     private fun startTimerTick() {
         timerJob?.cancel()
         timerJob = timerScope.launch {
@@ -681,21 +683,26 @@ object GameRecorder {
     }
 
     private fun finalise(context: Context) {
+        var muxerFinalized = false
         try {
             runCatching { videoCodec?.signalEndOfInputStream() }
-
             audioJob?.cancel()
 
             val deadline = System.currentTimeMillis() + 5_000L
-            while ((videoEncodeJob?.isActive == true || audioJob?.isActive == true)
-                && System.currentTimeMillis() < deadline
+            while ((videoEncodeJob?.isActive == true || audioJob?.isActive == true) &&
+                System.currentTimeMillis() < deadline
             ) {
                 Thread.sleep(50L)
             }
 
             synchronized(muxerLock) {
                 if (muxerStarted) {
-                    runCatching { muxer?.stop() }
+                    try {
+                        muxer?.stop()
+                        muxerFinalized = true
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Could not finalize MP4: ${e.message}", e)
+                    }
                     muxerStarted = false
                 }
                 runCatching { muxer?.release() }
@@ -703,15 +710,22 @@ object GameRecorder {
             }
 
             pendingUri?.let { uri ->
-                val values = ContentValues().apply {
-                    put(MediaStore.Video.Media.IS_PENDING, 0)
+                if (muxerFinalized) {
+                    val values = ContentValues().apply {
+                        put(MediaStore.Video.Media.IS_PENDING, 0)
+                    }
+                    context.contentResolver.update(uri, values, null, null)
+                    Log.i(TAG, "Recording saved to Movies/OrynLauncher Recordings: $uri")
+                    playRecordingStopSound()
+                } else {
+                    context.contentResolver.delete(uri, null, null)
+                    _lastError.value = "The recording did not contain a valid video and was discarded."
                 }
-                runCatching { context.contentResolver.update(uri, values, null, null) }
-                Log.i(TAG, "Recording saved: $uri")
-                playRecordingStopSound()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Finalise error: ${e.message}")
+            val message = "Could not save recording: ${e.message ?: e.javaClass.simpleName}"
+            Log.e(TAG, message, e)
+            _lastError.value = message
         } finally {
             cleanup()
         }
@@ -749,8 +763,20 @@ object GameRecorder {
             muxer = null
         }
 
-        mediaProjection?.stop()
+        runCatching { virtualDisplay?.release() }
+        virtualDisplay = null
+
+        val projection = mediaProjection
+        val callback = projectionCallback
+        if (projection != null && callback != null) {
+            runCatching { projection.unregisterCallback(callback) }
+        }
+        projectionCallback = null
+        runCatching { projection?.stop() }
         mediaProjection = null
+
+        runCatching { pendingPfd?.close() }
+        pendingPfd = null
 
         appContext?.stopService(
             android.content.Intent(appContext, MediaProjectionForegroundService::class.java)
@@ -760,9 +786,6 @@ object GameRecorder {
         captureThread?.quit()
         captureThread  = null
         captureHandler = null
-
-        runCatching { captureBitmap?.recycle() }
-        captureBitmap = null
 
         timerJob?.cancel(); timerJob = null
         _elapsedMs.value   = 0L
@@ -814,8 +837,8 @@ object GameRecorder {
 
     private fun createOutputEntry(context: Context): Pair<android.net.Uri, File> {
         val ts       = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "ZerythRec_$ts.mp4"
-        val relPath  = "Movies/Zeryth Recordings"
+        val fileName = "OrynLauncher_Recording_$ts.mp4"
+        val relPath  = "Movies/OrynLauncher Recordings"
 
         val values = ContentValues().apply {
             put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
@@ -830,6 +853,6 @@ object GameRecorder {
         val publicMovies = android.os.Environment.getExternalStoragePublicDirectory(
             android.os.Environment.DIRECTORY_MOVIES
         )
-        return Pair(uri, File(publicMovies, "Zeryth Recordings/$fileName"))
+        return Pair(uri, File(publicMovies, "OrynLauncher Recordings/$fileName"))
     }
 }
