@@ -233,6 +233,19 @@ object GameRecorder {
                     cleanup(); return@launch
                 }
 
+                // Some devices cannot initialize/play back-capture audio. Do not
+                // let an unavailable AAC track prevent the video-only recorder
+                // from starting (the old behavior could leave an empty MP4).
+                if (audioTrackIndex < 0) {
+                    Log.w(TAG, "Audio encoder did not provide a track; continuing video-only")
+                    runCatching { audioRecord?.stop() }
+                    runCatching { audioRecord?.release() }
+                    audioRecord = null
+                    runCatching { audioCodec?.stop() }
+                    runCatching { audioCodec?.release() }
+                    audioCodec = null
+                }
+
                 recordingStartNs = System.nanoTime()
                 runCatching { audioRecord?.startRecording() }.onFailure { error ->
                     Log.w(TAG, "Game audio capture unavailable; video will continue without game audio: ${error.message}")
@@ -241,7 +254,9 @@ object GameRecorder {
                 }
                 audioStartOffsetUs = (System.nanoTime() - recordingStartNs) / 1_000L
 
-                if (videoTrackIndex >= 0 && audioTrackIndex >= 0) {
+                if (videoTrackIndex >= 0 &&
+                    (audioTrackIndex >= 0 || audioCodec == null)
+                ) {
                     synchronized(muxerLock) {
                         muxer!!.start()
                         muxerStarted  = true
@@ -255,7 +270,7 @@ object GameRecorder {
                 discardVideoOutput(videoCodec!!)
 
                 startVideoEncodeJob()
-                startAudioJob()
+                if (audioCodec != null && audioRecord != null) startAudioJob()
 
                 val densityDpi = metrics.densityDpi.coerceAtLeast(1)
                 virtualDisplay = projection.createVirtualDisplay(
@@ -597,7 +612,10 @@ object GameRecorder {
     }
 
     private fun tryStartMuxerLocked() {
-        if (videoTrackIndex >= 0 && audioTrackIndex >= 0 && !muxerStarted) {
+        if (videoTrackIndex >= 0 &&
+            (audioTrackIndex >= 0 || audioCodec == null) &&
+            !muxerStarted
+        ) {
             muxer!!.start()
             muxerStarted   = true
             muxerStartedNs = System.nanoTime()
