@@ -126,7 +126,7 @@ fun GameMenuSubscreen(
                     selectedTabIndex = controlMenuTabIndex,
                     edgePadding = 0.dp,
                     minTabWidth = 58.dp,
-                    containerColor = cardTitleColor(),
+                    containerColor = Color(0xFF101216),
                 ) {
                     controlTabs.forEachIndexed { index, iconTab ->
                         Tab(
@@ -210,8 +210,8 @@ private fun GameActionContent(
     onShowToast: (AndroidStringText, Int) -> Unit,
     onStartRecording: () -> Unit = {},
     modifier: Modifier = Modifier,
-    color: Color = cardColor(false),
-    contentColor: Color = onCardColor(),
+    color: Color = Color(0xFF15181C),
+    contentColor: Color = Color(0xFFF2F2F2),
 ) {
     val listState = rememberLazyListState()
     LazyColumn(
