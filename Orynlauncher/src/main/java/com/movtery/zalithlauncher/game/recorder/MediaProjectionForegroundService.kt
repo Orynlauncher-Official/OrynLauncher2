@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.game.recorder
 
 import android.Manifest
+import android.app.Activity
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
@@ -26,6 +27,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.media.projection.MediaProjectionManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.movtery.zalithlauncher.R
@@ -35,6 +37,9 @@ import com.movtery.zalithlauncher.notification.NotificationChannelData
 class MediaProjectionForegroundService : Service() {
     companion object {
         private const val TAG = "ProjectionFGS"
+        const val ACTION_START_RECORDING = "com.movtery.zalithlauncher.action.START_SCREEN_RECORDING"
+        const val EXTRA_RESULT_CODE = "projection_result_code"
+        const val EXTRA_RESULT_DATA = "projection_result_data"
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -53,21 +58,58 @@ class MediaProjectionForegroundService : Service() {
             Manifest.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && canUseMediaProjection) {
-            startForeground(
-                NOTIFICATION_ID_RECORDING_SERVICE,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.w(TAG, "FOREGROUND_SERVICE_MEDIA_PROJECTION not granted, starting without type")
-            startForeground(
-                NOTIFICATION_ID_RECORDING_SERVICE,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE
-            )
-        } else {
-            startForeground(NOTIFICATION_ID_RECORDING_SERVICE, notification)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && canUseMediaProjection) {
+                startForeground(
+                    NOTIFICATION_ID_RECORDING_SERVICE,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                throw SecurityException("Missing FOREGROUND_SERVICE_MEDIA_PROJECTION permission.")
+            } else {
+                startForeground(NOTIFICATION_ID_RECORDING_SERVICE, notification)
+            }
+        } catch (e: Exception) {
+            val message = "Could not start screen recorder foreground service: ${e.message ?: e.javaClass.simpleName}"
+            Log.e(TAG, message, e)
+            GameRecorder.reportError(message)
+            stopSelf(startId)
+            return START_NOT_STICKY
+        }
+
+        if (intent?.action == ACTION_START_RECORDING) {
+            @Suppress("DEPRECATION")
+            val resultData = if (Build.VERSION.SDK_INT >= 33) {
+                intent.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
+            } else {
+                intent.getParcelableExtra(EXTRA_RESULT_DATA)
+            }
+            val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_CANCELED)
+            if (resultCode != Activity.RESULT_OK || resultData == null) {
+                GameRecorder.reportError("Screen capture permission result was invalid. Try starting the recorder again.")
+                stopSelf(startId)
+                return START_NOT_STICKY
+            }
+
+            try {
+                // getMediaProjection must run only after this service has entered
+                // the mediaProjection foreground state (Android 14+ requirement).
+                val manager = getSystemService(MediaProjectionManager::class.java)
+                val projection = manager.getMediaProjection(resultCode, resultData)
+                GameRecorder.start(this, projection)
+                if (GameRecorder.state.value == RecordingState.IDLE) {
+                    if (GameRecorder.lastError.value == null) {
+                        GameRecorder.reportError("The recorder could not start. Check available storage and try again.")
+                    }
+                    stopSelf(startId)
+                }
+            } catch (e: Exception) {
+                val message = "Could not begin screen capture: ${e.message ?: e.javaClass.simpleName}"
+                Log.e(TAG, message, e)
+                GameRecorder.reportError(message)
+                stopSelf(startId)
+            }
         }
 
         return START_NOT_STICKY
