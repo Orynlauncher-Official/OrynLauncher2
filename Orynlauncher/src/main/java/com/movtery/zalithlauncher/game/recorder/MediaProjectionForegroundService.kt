@@ -104,6 +104,7 @@ class MediaProjectionForegroundService : Service() {
                 // the mediaProjection foreground state (Android 14+ requirement).
                 val manager = getSystemService(MediaProjectionManager::class.java)
                 val projection = manager.getMediaProjection(resultCode, resultData)
+                    ?: throw IllegalStateException("Android did not provide a screen-capture session.")
                 GameRecorder.start(this, projection)
                 if (GameRecorder.state.value == RecordingState.IDLE) {
                     if (GameRecorder.lastError.value == null) {
