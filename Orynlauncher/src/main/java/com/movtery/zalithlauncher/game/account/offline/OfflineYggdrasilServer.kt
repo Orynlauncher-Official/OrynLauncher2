@@ -77,13 +77,16 @@ class OfflineYggdrasilServer(
         initialize(2048)
     }.genKeyPair()
 
-    private val serverStartedLatch = CountDownLatch(1)
+    private var serverStartedLatch = CountDownLatch(1)
     private var isServerRunning = false
 
     private var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
 
     fun start() {
-        // Avoid stale cosmetics when accounts or selected skins change between launches.
+        // Reset per-launch state so switching accounts or launching again cannot
+        // reuse stale profiles or a previously-counted-down startup latch.
+        serverStartedLatch = CountDownLatch(1)
+        isServerRunning = false
         charactersByUuid.clear()
         charactersByName.clear()
         server = embeddedServer(CIO, port = port) {
