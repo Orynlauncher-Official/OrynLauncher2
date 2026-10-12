@@ -299,7 +299,8 @@ private fun V5Home(
                 Column(
                     modifier = Modifier
                         .weight(6f)
-                        .fillMaxHeight(),
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
@@ -389,7 +390,7 @@ private fun V5Home(
                         }
                     }
 
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
                         modifier = Modifier
