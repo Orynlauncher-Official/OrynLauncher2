@@ -685,6 +685,11 @@ object GameRecorder {
     private fun finalise(context: Context) {
         var muxerFinalized = false
         try {
+            // Detach the display before sending EOS to the encoder, otherwise
+            // the virtual display can keep submitting frames during finalization.
+            runCatching { virtualDisplay?.setSurface(null) }
+            runCatching { virtualDisplay?.release() }
+            virtualDisplay = null
             runCatching { videoCodec?.signalEndOfInputStream() }
             audioJob?.cancel()
 
@@ -722,6 +727,7 @@ object GameRecorder {
                     _lastError.value = "The recording did not contain a valid video and was discarded."
                 }
             }
+            pendingUri = null
         } catch (e: Exception) {
             val message = "Could not save recording: ${e.message ?: e.javaClass.simpleName}"
             Log.e(TAG, message, e)
@@ -733,6 +739,13 @@ object GameRecorder {
 
     private fun cleanup() {
         isCapturing.set(false)
+
+        // Remove an unfinished MediaStore entry after any startup/encoding
+        // failure. Successful finalization clears pendingUri before cleanup.
+        pendingUri?.let { uri ->
+            runCatching { appContext?.contentResolver?.delete(uri, null, null) }
+        }
+        pendingUri = null
 
         videoEncodeJob?.cancel(); videoEncodeJob = null
         audioJob?.cancel();       audioJob       = null
