@@ -155,6 +155,7 @@ fun LauncherScreen(
     onNavigateToStats: () -> Unit = {},
     onNavigateToPlayTimeStats: () -> Unit = {},
     onNavigateToLog: (String) -> Unit = {},
+    onNavigateToRecordings: () -> Unit = {},
 ) {
     BaseScreen(
         screenKey = NormalNavKey.LauncherMain,
@@ -208,6 +209,7 @@ fun LauncherScreen(
                 )
             },
             onFpsClick = { performanceSettingsState = PerformanceSettingsOperation.Fps },
+            onNavigateToRecordings = onNavigateToRecordings,
         )
     }
 }
@@ -224,6 +226,7 @@ private fun V5Home(
     toMultiplayerScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
     onFpsClick: () -> Unit,
+    onNavigateToRecordings: () -> Unit,
 ) {
     val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
 
@@ -265,7 +268,7 @@ private fun V5Home(
                     )
                 }
                 Spacer(Modifier.weight(1f))
-                V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onFpsClick)
+                V5IconButton(R.drawable.ic_videocam_filled, "Recordings", onNavigateToRecordings)
                 V5IconButton(R.drawable.ic_folder_filled, "Files", toFileManagerScreen)
                 V5IconButton(R.drawable.ic_group_filled, "Multiplayer", toMultiplayerScreen)
                 V5IconButton(R.drawable.ic_download_2_filled, "Downloads", toDownloadScreen)
