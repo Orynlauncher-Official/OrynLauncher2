@@ -31,6 +31,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -328,7 +329,7 @@ private fun V5Home(
 
                     Box(
                         modifier = Modifier
-                            .width(365.dp)
+                            .fillMaxWidth()
                             .height(205.dp)
                             .clip(RoundedCornerShape(30.dp))
                             .background(panel)
@@ -451,13 +452,16 @@ private fun V5Home(
                             Text(
                                 "COSMETICS",
                                 color = Color.White,
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false
                             )
                             Text(
                                 "Manage your Minecraft appearance",
                                 color = Color.White.copy(alpha = .5f),
-                                fontSize = 14.sp
+                                fontSize = 12.sp,
+                                maxLines = 2
                             )
                         }
                         Text(
@@ -474,7 +478,7 @@ private fun V5Home(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 24.dp)
+                            .padding(top = 16.dp)
                             .clip(RoundedCornerShape(24.dp))
                             .background(softPanel)
                             .clickable(onClick = toAccountManageScreen)
@@ -517,7 +521,7 @@ private fun V5Home(
                         isVisible = isVisible,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp)
+                            .height(160.dp)
                             .clip(RoundedCornerShape(24.dp))
                     )
                 }
