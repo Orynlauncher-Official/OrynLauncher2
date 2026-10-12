@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,7 +90,6 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerT
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.game.recorder.GameRecorder
-import com.movtery.zalithlauncher.game.recorder.GameSurfaceRegistry
 import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.discord.OrynDiscordPresence
@@ -143,13 +141,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import com.movtery.zalithlauncher.game.recorder.MediaProjectionForegroundService
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
