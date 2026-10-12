@@ -79,10 +79,10 @@ jobs:
           if-no-files-found: error
           archive: false
 
-      - name: Rename Debug APK
+      - name: Verify Debug APK filename
         if: inputs.variant == 'Debug'
         run: |
-          mv Orynlauncher/build/outputs/apk/debug/*.apk Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
+          test -f Orynlauncher/build/outputs/apk/debug/OrynLauncherV5-Debug.apk
 
       - name: Upload Debug APK for ${{ matrix.arch }}
         if: inputs.variant == 'Debug'
