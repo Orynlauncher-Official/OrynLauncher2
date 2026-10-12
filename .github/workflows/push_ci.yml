@@ -16,7 +16,7 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      variant: Release
+      variant: Debug
     secrets:
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
