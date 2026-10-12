@@ -517,6 +517,13 @@ fun GameScreen(
     val recordingState by GameRecorder.state.collectAsStateWithLifecycle()
     val elapsedMs by GameRecorder.elapsedMs.collectAsStateWithLifecycle()
     val micEnabled by GameRecorder.micEnabled.collectAsStateWithLifecycle()
+    val recorderError by GameRecorder.lastError.collectAsStateWithLifecycle()
+
+    LaunchedEffect(recorderError) {
+        recorderError?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
     val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
     val isGrabbing = remember(cursorMode) {
         cursorMode == CURSOR_DISABLED
@@ -584,6 +591,11 @@ fun GameScreen(
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
             try {
+                // Android 14+ requires the user-approved projection before the
+                // mediaProjection foreground service is started.
+                context.startForegroundService(
+                    Intent(context, MediaProjectionForegroundService::class.java)
+                )
                 val projection = mediaProjectionManager
                     .getMediaProjection(result.resultCode, result.data!!)
                 if (projection != null) {
@@ -613,10 +625,21 @@ fun GameScreen(
     }
 
     fun launchProjectionConsent() {
-        context.startForegroundService(
-            Intent(context, MediaProjectionForegroundService::class.java)
-        )
         requestProjection.launch(mediaProjectionManager.createScreenCaptureIntent())
+    }
+
+    val requestMicrophonePermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            GameRecorder.toggleMicrophone()
+        } else {
+            Toast.makeText(
+                context,
+                "Microphone permission was denied. Screen recording can continue without microphone audio.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     BoxWithConstraints(
@@ -756,8 +779,13 @@ fun GameScreen(
             },
             onStartRecording = {
                 viewModel.gameMenuState = MenuState.HIDE
-                if (recordingState == RecordingState.IDLE) {
-                    launchProjectionConsent()
+                when (recordingState) {
+                    RecordingState.IDLE -> launchProjectionConsent()
+                    RecordingState.RECORDING, RecordingState.PAUSED -> {
+                        GameRecorder.stopAndSave(context)
+                        Toast.makeText(context, "Saving recording…", Toast.LENGTH_SHORT).show()
+                    }
+                    RecordingState.STOPPING -> Unit
                 }
             },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
@@ -841,7 +869,17 @@ fun GameScreen(
                             android.widget.Toast.LENGTH_SHORT
                         )
                     },
-                    onToggleMic = { GameRecorder.toggleMicrophone() }
+                    onToggleMic = {
+                        if (micEnabled ||
+                            ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.RECORD_AUDIO
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            GameRecorder.toggleMicrophone()
+                        } else {
+                            requestMicrophonePermission.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }
                 )
             }
         }
