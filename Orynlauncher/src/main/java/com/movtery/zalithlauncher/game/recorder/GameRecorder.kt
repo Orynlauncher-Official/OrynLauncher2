@@ -343,15 +343,14 @@ object GameRecorder {
                 Log.w(TAG, "Microphone permission has not been granted")
                 return
             }
-            val projection = mediaProjection
-            if (projection == null) return
-            buildMicAudioRecord().also { created ->
-                if (created == null) {
-                    _lastError.value = "Microphone audio could not be initialized on this device."
-                    return
-                }
-                micAudioRecord = created
+            if (mediaProjection == null) return
+            val created = buildMicAudioRecord()
+            if (created == null) {
+                _lastError.value = "Microphone audio could not be initialized on this device."
+                return
             }
+            micAudioRecord = created
+            created
         }
         try {
             if (mar.recordingState != AudioRecord.RECORDSTATE_RECORDING &&
