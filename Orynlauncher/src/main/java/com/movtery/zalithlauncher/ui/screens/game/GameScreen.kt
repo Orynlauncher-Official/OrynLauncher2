@@ -510,13 +510,6 @@ fun GameScreen(
     gamepadViewModel: GamepadViewModel,
 ) {
     val context = LocalContext.current
-    // Register the active game Compose host for the recorder. Without this,
-    // GameRecorder.start() exits immediately because no capture view is registered.
-    val recordingView = LocalView.current
-    DisposableEffect(recordingView) {
-        GameSurfaceRegistry.register(recordingView)
-        onDispose { GameSurfaceRegistry.unregister() }
-    }
     DisposableEffect(version.getVersionName(), AllSettings.discordRichPresence.state) {
         val presence = if (AllSettings.discordRichPresence.state) OrynDiscordPresence(context) else null
         presence?.start(version.getVersionName())
@@ -581,57 +574,54 @@ fun GameScreen(
     )
 
     // ── Recording launchers ───────────────────────────────────────────────────
-    // Flow: RECORD_AUDIO permission → MediaProjection consent dialog → start.
+    // Screen capture consent is required; microphone permission is not. Audio
+    // playback capture is separate from microphone recording.
     val mediaProjectionManager = remember {
         context.getSystemService(MediaProjectionManager::class.java)
     }
-    var pendingStartRecording by remember { mutableStateOf(false) }
 
     fun stopProjectionService() {
         context.stopService(Intent(context, MediaProjectionForegroundService::class.java))
     }
 
-    // Step 2: consent dialog result — stopProjectionService is already in scope above.
     val requestProjection = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        pendingStartRecording = false
         if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
             try {
                 val projection = mediaProjectionManager
                     .getMediaProjection(result.resultCode, result.data!!)
                 if (projection != null) {
+                    // Keep the foreground service alive for the entire projection
+                    // session. GameRecorder.cleanup() stops it when recording ends.
                     GameRecorder.start(context, projection)
-                    eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
+                    if (GameRecorder.state.value == RecordingState.IDLE) {
+                        stopProjectionService()
+                        eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+                    } else {
+                        eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
+                    }
                 } else {
+                    stopProjectionService()
                     eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
                 }
             } catch (e: SecurityException) {
+                stopProjectionService()
+                eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+            } catch (e: Exception) {
+                stopProjectionService()
                 eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
             }
-            stopProjectionService()
         } else {
             stopProjectionService()
         }
     }
 
-    // launchProjectionConsent references requestProjection, so it must come after it.
     fun launchProjectionConsent() {
         context.startForegroundService(
             Intent(context, MediaProjectionForegroundService::class.java)
         )
         requestProjection.launch(mediaProjectionManager.createScreenCaptureIntent())
-    }
-
-    // Step 1: RECORD_AUDIO permission — launchProjectionConsent is in scope above.
-    val requestAudioPermission = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (pendingStartRecording && granted) {
-            launchProjectionConsent()
-        } else {
-            pendingStartRecording = false
-        }
     }
 
     BoxWithConstraints(
@@ -772,15 +762,7 @@ fun GameScreen(
             onStartRecording = {
                 viewModel.gameMenuState = MenuState.HIDE
                 if (recordingState == RecordingState.IDLE) {
-                    val hasAudio = ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.RECORD_AUDIO
-                    ) == PackageManager.PERMISSION_GRANTED
-                    pendingStartRecording = true
-                    if (hasAudio) {
-                        launchProjectionConsent()
-                    } else {
-                        requestAudioPermission.launch(Manifest.permission.RECORD_AUDIO)
-                    }
+                    launchProjectionConsent()
                 }
             },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
