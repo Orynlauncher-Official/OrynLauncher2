@@ -254,8 +254,12 @@ class OfflineYggdrasilServer(
         }.toString()
         Logger.debug(TAG, "Try find profile with uuid $uuid")
 
-        val character = charactersByUuid[uuid.lowercase()] ?: return buildJsonObject { }.toString().also {
-            Logger.debug(TAG, "Profile with uuid $uuid not found")
+        // Authlib/profile endpoints may supply UUIDs with or without hyphens.
+        // addCharacter() stores canonical 32-character UUIDs, so normalize the
+        // incoming lookup before resolving the player's skin/cape profile.
+        val normalizedUuid = uuid.replace("-", "").lowercase()
+        val character = charactersByUuid[normalizedUuid] ?: return buildJsonObject { }.toString().also {
+            Logger.debug(TAG, "Profile with uuid $uuid (normalized=$normalizedUuid) not found")
         }
 
         return character.toCompleteResponse("http://localhost:${getPort()}", this::sign).also {
