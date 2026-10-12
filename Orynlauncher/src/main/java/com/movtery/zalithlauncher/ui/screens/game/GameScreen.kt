@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -90,6 +91,7 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerT
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.game.recorder.GameRecorder
+import com.movtery.zalithlauncher.game.recorder.GameSurfaceRegistry
 import com.movtery.zalithlauncher.game.recorder.RecordingState
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.discord.OrynDiscordPresence
@@ -508,6 +510,13 @@ fun GameScreen(
     gamepadViewModel: GamepadViewModel,
 ) {
     val context = LocalContext.current
+    // Register the active game Compose host for the recorder. Without this,
+    // GameRecorder.start() exits immediately because no capture view is registered.
+    val recordingView = LocalView.current
+    DisposableEffect(recordingView) {
+        GameSurfaceRegistry.register(recordingView)
+        onDispose { GameSurfaceRegistry.unregister() }
+    }
     DisposableEffect(version.getVersionName(), AllSettings.discordRichPresence.state) {
         val presence = if (AllSettings.discordRichPresence.state) OrynDiscordPresence(context) else null
         presence?.start(version.getVersionName())
