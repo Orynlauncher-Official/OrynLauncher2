@@ -54,6 +54,7 @@ import java.security.KeyPairGenerator
 import java.security.PublicKey
 import java.security.Signature
 import java.util.Base64
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -82,6 +83,9 @@ class OfflineYggdrasilServer(
     private var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
 
     fun start() {
+        // Avoid stale cosmetics when accounts or selected skins change between launches.
+        charactersByUuid.clear()
+        charactersByName.clear()
         server = embeddedServer(CIO, port = port) {
             install(ContentNegotiation) {
                 json(Json {
@@ -144,6 +148,8 @@ class OfflineYggdrasilServer(
         isServerRunning = false
         server?.stop(1000, 5000)
         serverStartedLatch.countDown()
+        charactersByUuid.clear()
+        charactersByName.clear()
     }
 
     fun getPort(): Int? {
@@ -186,10 +192,23 @@ class OfflineYggdrasilServer(
             )
         )
 
-        charactersByUuid[character.uuid.lowercase()] = character
+        charactersByUuid[character.uuid.replace("-", "").lowercase()] = character
+
+        // Offline-mode multiplayer servers derive the player's UUID from the
+        // exact "OfflinePlayer:<name>" string. The launcher's local profile UUID
+        // encodes the selected Steve/Alex model, so it differs from the server's
+        // UUID. Register an alias for that server UUID without changing the
+        // account UUID used for launching/authentication.
+        val serverOfflineUuid = UUID.nameUUIDFromBytes(
+            "OfflinePlayer:${account.username}".toByteArray(Charsets.UTF_8)
+        ).toString().replace("-", "").lowercase()
+        charactersByUuid[serverOfflineUuid] = character.copy(uuid = serverOfflineUuid)
         charactersByName[character.name.lowercase()] = character
 
-        Logger.info(TAG, "Added character ${character.name} (${character.uuid}), skin hash = ${character.skin?.skinHash}")
+        Logger.info(
+            TAG,
+            "Added character ${character.name} (${character.uuid}); offline-server UUID alias=$serverOfflineUuid; skin hash=${character.skin?.skinHash}"
+        )
     }
 
 
