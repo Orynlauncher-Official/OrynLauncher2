@@ -864,10 +864,7 @@ fun GameScreen(
                     onResumeRecording = { GameRecorder.resume() },
                     onStopRecording = {
                         GameRecorder.stopAndSave(context)
-                        eventViewModel.sendToast(
-                            androidText(R.string.recorder_saved),
-                            android.widget.Toast.LENGTH_SHORT
-                        )
+                        Toast.makeText(context, "Saving recording…", Toast.LENGTH_SHORT).show()
                     },
                     onToggleMic = {
                         if (micEnabled ||
