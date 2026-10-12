@@ -708,9 +708,6 @@ fun GameScreen(
                 widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
                 heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
                 sendKeycode = { keycode ->
-                    // Native input can remain marked unavailable after a menu/focus
-                    // transition; re-arm it before sending hotbar taps.
-                    CallbackBridge.nativeSetInputReady(true)
                     CallbackBridge.sendKeyPress(keycode)
                 },
                 isGrabbing = isGrabbing,
