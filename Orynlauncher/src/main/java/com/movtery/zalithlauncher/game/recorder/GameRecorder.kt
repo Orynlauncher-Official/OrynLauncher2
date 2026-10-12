@@ -230,7 +230,11 @@ object GameRecorder {
                 }
 
                 recordingStartNs = System.nanoTime()
-                audioRecord?.startRecording()
+                runCatching { audioRecord?.startRecording() }.onFailure { error ->
+                    Log.w(TAG, "Game audio capture unavailable; video will continue without game audio: ${error.message}")
+                    runCatching { audioRecord?.release() }
+                    audioRecord = null
+                }
                 audioStartOffsetUs = (System.nanoTime() - recordingStartNs) / 1_000L
 
                 if (videoTrackIndex >= 0 && audioTrackIndex >= 0) {
