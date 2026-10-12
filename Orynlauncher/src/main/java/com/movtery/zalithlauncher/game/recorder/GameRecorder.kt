@@ -113,6 +113,10 @@ object GameRecorder {
     private val _lastError = MutableStateFlow<String?>(null)
     val lastError: StateFlow<String?> = _lastError.asStateFlow()
 
+    fun reportError(message: String) {
+        _lastError.value = message
+    }
+
     @Volatile private var recordingStartNs      = 0L
     @Volatile private var muxerStartedNs        = 0L
     @Volatile private var captureStartNs        = 0L
