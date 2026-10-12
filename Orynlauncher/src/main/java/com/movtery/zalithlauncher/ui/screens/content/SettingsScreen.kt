@@ -96,13 +96,14 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF0B0D12))
+                .background(Color(0xFF090909))
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, bottom = 16.dp),
+                    .background(Color(0xFF151515), RoundedCornerShape(18.dp))
+                .padding(horizontal = 14.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
@@ -111,14 +112,14 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Oryn Settings",
-                        color = Color(0xFFF1F3FF),
+                        text = "ORYN  /  SETTINGS",
+                        color = Color(0xFFFFFFFF),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = "Oryn Launcher V5  •  Monochrome Theme",
-                        color = Color(0xFF9CA8C5),
+                        text = "LAUNCHER CONTROL CENTER  •  V5",
+                        color = Color(0xFF9A9A9A),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -183,7 +184,7 @@ private fun TabMenu(
         modifier = modifier
             .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
             .background(
-                color = Color(0xFF11141B),
+                color = Color(0xFF141414),
                 shape = RoundedCornerShape(20.dp)
             )
             .fadeEdge(scrollState)
@@ -225,9 +226,9 @@ private fun TabMenu(
                 colors = NavigationRailItemDefaults.colors(
                     selectedIconColor = Color(0xFFFFFFFF),
                     selectedTextColor = Color(0xFFFFFFFF),
-                    indicatorColor = Color(0xFF303642),
-                    unselectedIconColor = Color(0xFFB7C0D8),
-                    unselectedTextColor = Color(0xFFA0A8BC)
+                    indicatorColor = Color(0xFF343434),
+                    unselectedIconColor = Color(0xFFB8B8B8),
+                    unselectedTextColor = Color(0xFF969696)
                 )
             )
 
