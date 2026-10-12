@@ -59,14 +59,21 @@ class MediaProjectionForegroundService : Service() {
         ) == PackageManager.PERMISSION_GRANTED
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && canUseMediaProjection) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                if (!canUseMediaProjection) {
+                    throw SecurityException("Missing FOREGROUND_SERVICE_MEDIA_PROJECTION permission.")
+                }
                 startForeground(
                     NOTIFICATION_ID_RECORDING_SERVICE,
                     notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                 )
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                throw SecurityException("Missing FOREGROUND_SERVICE_MEDIA_PROJECTION permission.")
+                startForeground(
+                    NOTIFICATION_ID_RECORDING_SERVICE,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                )
             } else {
                 startForeground(NOTIFICATION_ID_RECORDING_SERVICE, notification)
             }
