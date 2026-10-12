@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/Orynlauncher-Official/OrynLauncher2/releases">Download</a> •
-  <a href="https://discord.gg/PwNYmrCKtu">Discord</a> •
+  <a href="https://discord.gg/wA9PSxhMsh">Discord</a> •
   <a href="https://youtube.com/@orynlauncher">YouTube</a>
 </p>
 
@@ -96,7 +96,7 @@ OrynLauncher includes and builds on open-source software and libraries. Their re
 
 ## 💬 Support
 
-- **Discord:** https://discord.gg/PwNYmrCKtu
+- **Discord:** https://discord.gg/wA9PSxhMsh
 - **YouTube:** https://youtube.com/@orynlauncher
 - **Releases:** https://github.com/Orynlauncher-Official/OrynLauncher2/releases
 - **Issues:** https://github.com/Orynlauncher-Official/OrynLauncher2/issues
