@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/Orynlauncher-Official/OrynLauncher2">GitHub</a> •
-  <a href="https://discord.gg/PwNYmrCKtu">Discord</a> •
+  <a href="https://discord.gg/wA9PSxhMsh">Discord</a> •
   <a href="https://youtube.com/@orynlauncher">YouTube</a>
 </p>
 
@@ -115,7 +115,7 @@ Build using the Gradle configuration included in the repository. For development
 
 ## 💬 Community
 
-- **Discord:** https://discord.gg/PwNYmrCKtu
+- **Discord:** https://discord.gg/wA9PSxhMsh
 - **YouTube:** https://youtube.com/@orynlauncher
 - **GitHub Releases:** https://github.com/Orynlauncher-Official/OrynLauncher2/releases
 
