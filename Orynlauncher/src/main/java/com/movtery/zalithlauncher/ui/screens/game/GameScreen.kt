@@ -591,33 +591,23 @@ fun GameScreen(
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK && result.data != null) {
             try {
-                // Android 14+ requires the user-approved projection before the
-                // mediaProjection foreground service is started.
-                context.startForegroundService(
-                    Intent(context, MediaProjectionForegroundService::class.java)
-                )
-                val projection = mediaProjectionManager
-                    .getMediaProjection(result.resultCode, result.data!!)
-                if (projection != null) {
-                    // Keep the foreground service alive for the entire projection
-                    // session. GameRecorder.cleanup() stops it when recording ends.
-                    GameRecorder.start(context, projection)
-                    if (GameRecorder.state.value == RecordingState.IDLE) {
-                        stopProjectionService()
-                        eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
-                    } else {
-                        eventViewModel.sendToast(androidText(R.string.recorder_started), Toast.LENGTH_SHORT)
-                    }
-                } else {
-                    stopProjectionService()
-                    eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+                // Pass the consent token to the service. The service enters its
+                // mediaProjection foreground state before calling getMediaProjection.
+                val serviceIntent = Intent(
+                    context,
+                    MediaProjectionForegroundService::class.java
+                ).apply {
+                    action = MediaProjectionForegroundService.ACTION_START_RECORDING
+                    putExtra(MediaProjectionForegroundService.EXTRA_RESULT_CODE, result.resultCode)
+                    putExtra(MediaProjectionForegroundService.EXTRA_RESULT_DATA, result.data!!)
                 }
-            } catch (e: SecurityException) {
-                stopProjectionService()
-                eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+                context.startForegroundService(serviceIntent)
+                Toast.makeText(context, "Starting recorder…", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 stopProjectionService()
-                eventViewModel.sendToast(androidText(R.string.recorder_error), Toast.LENGTH_SHORT)
+                GameRecorder.reportError(
+                    "Could not start screen recording: ${e.message ?: e.javaClass.simpleName}"
+                )
             }
         } else {
             stopProjectionService()
