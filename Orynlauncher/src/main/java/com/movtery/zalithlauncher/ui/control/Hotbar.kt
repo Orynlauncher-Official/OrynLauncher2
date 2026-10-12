@@ -282,8 +282,9 @@ private fun Modifier.mainTouchLogic(
             while (true) {
                 val event = awaitPointerEvent(PointerEventPass.Initial)
                 event.changes.forEach { change ->
-                    if (change.isConsumed) return@forEach
-
+                    // This overlay sits above the game's touch surface. A parent/neighbor
+                    // control may already have consumed the pointer during the Initial
+                    // pass; still process it here or hotbar taps are silently dropped.
                     val pointerId = change.id
                     val currentTime = change.uptimeMillis
 
