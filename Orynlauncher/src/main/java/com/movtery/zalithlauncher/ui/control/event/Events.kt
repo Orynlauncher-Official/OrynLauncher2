@@ -31,10 +31,6 @@ fun lwjglEvent(
 ) {
     val keycode: Int = ControlEventKeycode.getKeycodeFromEvent(eventKey)?.toInt() ?: return
 
-    // The native bridge drops every key/mouse event while isInputReady is false.
-    // Re-arm it when the player explicitly presses an in-game virtual control.
-    CallbackBridge.nativeSetInputReady(true)
-
     if (isMouse) {
         CallbackBridge.sendMouseButton(keycode, isPressed)
     } else {
