@@ -28,6 +28,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -235,10 +236,12 @@ fun DualMenuSubscreen(
                 BackgroundCard(
                     shape = shape,
                     influencedByBackground = false,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .border(1.dp, Color(0xFF454950), shape),
                     colors = CardDefaults.cardColors(
-                        containerColor = backgroundColor(),
-                        contentColor = onBackgroundColor()
+                        containerColor = Color(0xFF090A0C),
+                        contentColor = Color(0xFFF2F2F2)
                     ),
                     content = {
                         leftMenuTitle?.let { titleLayout ->
