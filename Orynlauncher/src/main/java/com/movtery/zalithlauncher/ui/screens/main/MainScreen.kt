@@ -580,6 +580,9 @@ private fun NavigationUI(
                     LauncherScreen(
                         backStackViewModel = screenBackStackModel,
                         navigateToVersions = navigateToVersions,
+                        onNavigateToRecordings = {
+                            backStack.navigateTo(NormalNavKey.Recordings)
+                        },
                         onLaunchGame = { version ->
                             eventViewModel.sendEvent(
                                 EventViewModel.Event.Launch.Game(version)
