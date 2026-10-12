@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -102,8 +103,9 @@ fun SettingsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF151515), RoundedCornerShape(18.dp))
-                .padding(horizontal = 14.dp, vertical = 14.dp),
+                    .background(Color(0xFF101010), RoundedCornerShape(18.dp))
+                .border(1.dp, Color(0xFF292929), RoundedCornerShape(18.dp))
+                .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
@@ -112,14 +114,14 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "ORYN  /  SETTINGS",
+                        text = "ORYN CONTROL",
                         color = Color(0xFFFFFFFF),
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "LAUNCHER CONTROL CENTER  •  V5",
-                        color = Color(0xFF9A9A9A),
+                        text = "PERSONALIZE  •  PERFORMANCE  •  V5",
+                        color = Color(0xFF969696),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -182,14 +184,15 @@ private fun TabMenu(
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
-            .padding(start = 8.dp, top = 10.dp, bottom = 10.dp)
+            .padding(start = 6.dp, top = 8.dp, bottom = 8.dp)
             .background(
-                color = Color(0xFF141414),
-                shape = RoundedCornerShape(20.dp)
+                color = Color(0xFF0E0E0E),
+                shape = RoundedCornerShape(22.dp)
             )
+            .border(1.dp, Color(0xFF292929), RoundedCornerShape(22.dp))
             .fadeEdge(scrollState)
-            .width(76.dp)
-            .padding(horizontal = 6.dp, vertical = 10.dp)
+            .width(88.dp)
+            .padding(horizontal = 5.dp, vertical = 10.dp)
             .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -226,7 +229,7 @@ private fun TabMenu(
                 colors = NavigationRailItemDefaults.colors(
                     selectedIconColor = Color(0xFFFFFFFF),
                     selectedTextColor = Color(0xFFFFFFFF),
-                    indicatorColor = Color(0xFF343434),
+                    indicatorColor = Color(0xFFFFFFFF),
                     unselectedIconColor = Color(0xFFB8B8B8),
                     unselectedTextColor = Color(0xFF969696)
                 )
