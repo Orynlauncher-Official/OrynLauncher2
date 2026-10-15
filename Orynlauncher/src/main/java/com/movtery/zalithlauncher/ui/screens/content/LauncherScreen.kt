@@ -1093,6 +1093,8 @@ private fun RightMenuContent(
             }
         }
 
+        val canLaunchSelectedVersion = !isRefreshing && version?.isValid() == true
+
         launchButton(
             Modifier
                 .fillMaxWidth()
@@ -1101,10 +1103,53 @@ private fun RightMenuContent(
                 }
                 .padding(PaddingValues(horizontal = 12.dp)),
             {
-                onLaunchGame(null)
+                // Never attempt to launch when there is no installed, valid version.
+                if (canLaunchSelectedVersion) {
+                    onLaunchGame(version)
+                } else {
+                    toVersionManageScreen()
+                }
             },
             {
-                MarqueeText(text = stringResource(R.string.main_launch_game))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_arrow_filled),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.White
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = if (canLaunchSelectedVersion) "PLAY" else "INSTALL GAME",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                        if (canLaunchSelectedVersion) {
+                            Text(
+                                text = version?.let { "${it.getVersionName()} • ${it.getVersionSummary()}" }.orEmpty(),
+                                color = Color.White.copy(alpha = 0.88f),
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1
+                            )
+                        } else {
+                            Text(
+                                text = "No version installed",
+                                color = Color.White.copy(alpha = 0.88f),
+                                style = MaterialTheme.typography.labelSmall,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
             }
         )
     }
