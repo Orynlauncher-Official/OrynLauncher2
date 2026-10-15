@@ -1135,7 +1135,7 @@ private fun RightMenuContent(
                         )
                         if (canLaunchSelectedVersion) {
                             Text(
-                                text = "${version!!.getVersionName()} • ${version.getVersionSummary()}",
+                                text = version?.let { "${it.getVersionName()} • ${it.getVersionSummary()}" }.orEmpty(),
                                 color = Color.White.copy(alpha = 0.88f),
                                 style = MaterialTheme.typography.labelSmall,
                                 maxLines = 1
