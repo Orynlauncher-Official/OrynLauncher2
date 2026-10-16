@@ -868,14 +868,14 @@ private fun DailyPlayTimeCard(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = stringResource(R.string.stats_statistics),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color.White,
                     maxLines = 1
                 )
                 Spacer(Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.stats_click_for_more),
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    color = Color.White.copy(alpha = 0.82f),
                     maxLines = 1
                 )
             }
@@ -936,7 +936,7 @@ private fun LastLogCard(
                     Text(
                         text = stringResource(R.string.stats_click_for_more),
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color.White,
                         maxLines = 1
                     )
                 }
@@ -955,7 +955,7 @@ private fun LastLogCard(
                         painter = painterResource(R.drawable.ic_play_arrow_filled),
                         contentDescription = stringResource(R.string.generic_open_link),
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Color.White
                     )
                 }
             }
@@ -1078,7 +1078,7 @@ private fun RightMenuContent(
                                     Icon(
                                         painter = painterResource(R.drawable.ic_play_arrow_filled),
                                         contentDescription = stringResource(R.string.main_launch_game),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        tint = Color.White
                                     )
                                 }
                             }
@@ -1182,8 +1182,57 @@ private fun RightMenu(
             toVersionSettingsScreen = toVersionSettingsScreen,
         ) { innerModifier, onClick, text ->
             ScalingActionButton(
-                modifier = innerModifier,
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
+                modifier = innerModifier.drawWithContent {
+                    drawContent()
+
+                    // Frosted snow crystals along the top and bottom edges.
+                    val frost = Color(0xFFEAFBFF)
+                    val dotRadius = 1.15.dp.toPx()
+                    val edgeInset = 3.dp.toPx()
+                    for (index in 0..18) {
+                        val x = size.width * index / 18f
+                        drawCircle(
+                            color = frost.copy(alpha = if (index % 3 == 0) 0.95f else 0.58f),
+                            radius = if (index % 3 == 0) dotRadius * 1.35f else dotRadius,
+                            center = androidx.compose.ui.geometry.Offset(x, edgeInset)
+                        )
+                        drawCircle(
+                            color = frost.copy(alpha = if (index % 4 == 0) 0.9f else 0.48f),
+                            radius = dotRadius,
+                            center = androidx.compose.ui.geometry.Offset(x, size.height - edgeInset)
+                        )
+                    }
+                    // Short icy glints near the corners, kept away from the label.
+                    val glint = Color.White.copy(alpha = 0.8f)
+                    for (index in 0..3) {
+                        val x = size.width * (0.04f + index * 0.035f)
+                        val y = size.height * 0.25f
+                        drawLine(
+                            color = glint,
+                            start = androidx.compose.ui.geometry.Offset(x - 2.dp.toPx(), y),
+                            end = androidx.compose.ui.geometry.Offset(x + 2.dp.toPx(), y),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            color = glint,
+                            start = androidx.compose.ui.geometry.Offset(x, y - 2.dp.toPx()),
+                            end = androidx.compose.ui.geometry.Offset(x, y + 2.dp.toPx()),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(22.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF168BCA),
+                    contentColor = Color.White
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.5.dp,
+                    Brush.linearGradient(
+                        colors = listOf(Color.White, Color(0xFF8BE4FF), Color(0xFFDDF8FF))
+                    )
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 onClick = onClick,
                 content = text
             )
@@ -1363,7 +1412,7 @@ private fun ChangelogCard(
                         Text(
                             text = stringResource(R.string.stats_click_for_more),
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Color.White,
                             maxLines = 1
                         )
                     }
