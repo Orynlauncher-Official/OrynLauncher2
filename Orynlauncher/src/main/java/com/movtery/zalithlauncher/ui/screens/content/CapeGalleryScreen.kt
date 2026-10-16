@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.graphics.Bitmap
+import android.content.Intent
 import android.net.Uri
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.NavigateBefore
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.HorizontalDivider
@@ -312,6 +314,36 @@ fun CapeGalleryScreen(
                     DisposableEffect(skinPreview) {
                         onDispose { skinPreview.destroy() }
                     }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
+                    Text("CUSTOM CAPES", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Find a custom cape on SkinMC, download its PNG texture, then use Import Cape above to preview and apply it to this account locally.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.68f)
+                    )
+                    Button(
+                        onClick = {
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://skinmc.net/capes/custom")
+                            )
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.OpenInNew,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Browse Custom Capes on SkinMC")
+                    }
+                    Text(
+                        "Tip: return here after downloading a cape PNG, tap Import Cape, and choose the file. Custom capes may only be visible locally unless the game server or compatible cape mod supports them.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.58f)
+                    )
                     HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
                     Text("CAPE COLLECTION", style = MaterialTheme.typography.titleMedium)
                     Text(
